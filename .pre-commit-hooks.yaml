@@ -1,0 +1,15 @@
+- id: detect-unencrypted-ansible-vault
+  name: Ansible Vaults Encryption Check
+  description: Checks that Ansible vault files are encrypted
+  entry: detect-unencrypted-ansible-vault.sh
+  files: ((^|/)vault|vault.y[a]{0,1}ml$|.vault$)
+  language: script
+  types: [executable]
+
+- id: detect-unsigned-commit
+  name: Git Commit PGP Signature Verification
+  description: Warns you when you don't push signed commits
+  entry: detect-unsigned-commit.sh
+  language: script
+  types: [executable]
+  always_run: true
