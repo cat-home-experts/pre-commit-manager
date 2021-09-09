@@ -1,0 +1,33 @@
+name: "Notifier"
+
+
+on:
+  repository_dispatch:
+    types: [slack-notification]
+
+
+jobs:
+  slack_notification:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: "Send Slack Standard Notification"
+        uses: rtCamp/action-slack-notify@v2
+        if: github.event.client_payload.type == 'build'
+        env:
+          SLACK_ICON: "https://octodex.github.com/images/constructocat2.jpg"
+          SLACK_WEBHOOK: ${{ secrets.SLACK_BUILD_WEBHOOK }}
+          SLACK_USERNAME: Platform-Team
+          SLACK_COLOR: ${{ github.event.client_payload.color }}
+          SLACK_TITLE: ${{ github.event.client_payload.title }}
+          SLACK_MESSAGE: ${{ github.event.client_payload.message }}
+      - name: "Send Slack Security Notification"
+        uses: rtCamp/action-slack-notify@v2
+        if: github.event.client_payload.type == 'alert'
+        env:
+          SLACK_ICON: "https://octodex.github.com/images/Sentrytocat_octodex.jpg"
+          SLACK_WEBHOOK: ${{ secrets.SLACK_ALERTS_WEBHOOK }}
+          SLACK_USERNAME: Platform-Team
+          SLACK_COLOR: ${{ github.event.client_payload.color }}
+          SLACK_TITLE: ${{ github.event.client_payload.title }}
+          SLACK_MESSAGE: ${{ github.event.client_payload.message }}

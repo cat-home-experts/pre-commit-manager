@@ -1,0 +1,45 @@
+name: "Static Analyser"
+
+
+on:
+  pull_request:
+    types: [opened]
+    branches: [ "**" ]
+  push:
+    branches: [ "**" ]
+  workflow_dispatch:
+
+
+defaults:
+  run:
+    shell: bash
+
+
+jobs:
+
+  super_linter:
+    name: "GitHub Super-Linter"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # Full git history is needed to get a proper list of changed files within `super-linter`
+          fetch-depth: 0
+      - name: "Lint Code Base"
+        #uses: github/super-linter@v4.7.1
+        uses: docker://ghcr.io/github/super-linter:slim-v4.7.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          DEFAULT_WORKSPACE: ${{ github.workspace }}
+          LINTER_RULES_PATH: .linters
+          # When set to false, only new or edited files will be parsed for validation
+          VALIDATE_ALL_CODEBASE: true
+          OUTPUT_DETAILS: simpler
+          #OUTPUT_DETAILS: detailed
+          #FILTER_REGEX_EXCLUDE: .*test/.*
+          VALIDATE_BASH: true            # see https://github.com/koalaman/shellcheck to disable checks
+          VALIDATE_MARKDOWN: true
+          MARKDOWN_CONFIG_FILE: markdown-linter.yml
+          VALIDATE_YAML: true
+          YAML_CONFIG_FILE: yaml-linter.yml

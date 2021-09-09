@@ -1,0 +1,20 @@
+{
+    "build_break_rules": {
+        "default": {
+            "max_critical": 0,
+            "max_high": 0,
+            "max_medium": 0
+        }
+    },
+    "scan_type": "credscan,bash,yaml",
+    "scan_tools_args_map": {
+        "credscan": [
+            "gitleaks",
+            "--redact",
+            "--no-git",
+            "--leaks-exit-code=0",
+            "--config-path=.security/credscan-config.toml",
+            "--depth=0"
+        ]
+    }
+}
