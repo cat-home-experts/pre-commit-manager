@@ -3,7 +3,8 @@ name: "Releaser"
 on:
   pull_request:
     types: [closed]
-    branches: [ "main" ]
+    branches:
+      - 'main'
 
 jobs:
   update_release_draft:

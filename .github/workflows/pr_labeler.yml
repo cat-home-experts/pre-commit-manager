@@ -3,7 +3,6 @@ name: "PR Labeler"
 on:
   pull_request:
     types: [opened]
-    branches: [ "**" ]
   push:
     branches-ignore: 
       - 'main'
