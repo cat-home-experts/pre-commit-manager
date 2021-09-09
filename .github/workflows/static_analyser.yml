@@ -4,9 +4,7 @@ name: "Static Analyser"
 on:
   pull_request:
     types: [opened]
-    branches: [ "**" ]
   push:
-    branches: [ "**" ]
   workflow_dispatch:
 
 
