@@ -3,36 +3,25 @@
 set -e
 
 installer_location="$HOME/.local/var/pre-commit-manager"
-precommit_manager_ssh_url="git@github.com:cat-home-experts/pre-commit-manager.git"
+precommit_manager_url="https://github.com/cat-home-experts/pre-commit-manager.git"
 cronjob_frequency_mins=${PRECOMMIT_UPDATE_FREQUENCY_MINS:-20}
 
 
-uname_out=$(uname -s)
-case ${uname_out} in
-  Linux*)     MACHINE=linux;;
-  Darwin*)    MACHINE=darwin;;
-  *)          MACHINE="UNKNOWN:${uname_out}";;
-esac;
+python --version 2>/dev/null || true
+python3 --version 2>/dev/null || true
+if npm --version >/dev/null 2>&1; then echo "Npm $(npm --version)"; fi
 
-if [[ "${MACHINE}" == "darwin" ]]; then
-  brew update && brew install pre-commit
-elif [[ "${MACHINE}" == "linux" ]]; then
-  [[ -n "$(command -v yum)" ]] && MACHINE=redhat
-  [[ -n "$(command -v apt-get)" ]] && MACHINE=debian
-
-  if [[ "${MACHINE}" == "redhat" ]]; then
-    yum update -y && yum install -y pre-commit
-  elif [[ "${MACHINE}" == "debian" ]]; then
-    apt-get update -y && apt-get install -y pre-commit
+if python -m pip install pre-commit 2>/dev/null || python3 -m pip install pre-commit 2>/dev/null || npm install -g pre-commit 2>/dev/null; then
+  if pre-commit --version 2>/dev/null; then
+    echo -e "\033[1;32m[✓]\033[0m pre-commit framework binaries installed"
   else
-    echo -e "ERROR - OS unsupported"
+    echo -e "\033[1;37m\033[41mpre-commit installed but probably not in your PATH.\033[0m"
     exit 1
   fi
 else
-  echo -e "ERROR - OS unsupported"
+  echo -e "\033[1;37m\033[41mNo relevant package manager found. You need to install python+pip or npm.\033[0m"
   exit 1
 fi
-echo -e "\033[1;32m[✓]\033[0m pre-commit framework binaries installed"
 
 mkdir -p "${installer_location}"
 
@@ -49,7 +38,7 @@ cat > "${installer_location}/deploy_hooks.sh" <<WITH_INTERPOLATION
 set -e
 
 installer_location="${installer_location}"
-precommit_manager_ssh_url="${precommit_manager_ssh_url}"
+precommit_manager_url="${precommit_manager_url}"
 WITH_INTERPOLATION
 
 cat >> "${installer_location}/deploy_hooks.sh" <<'WITHOUT_INTERPOLATION'
@@ -57,7 +46,7 @@ baseline_precommit_config_file=${PRECOMMIT_BASELINE:-"sources/baseline.yaml"}
 
 
 if [[ ! -d "${installer_location}/repository" ]]; then
-  git clone -n "${precommit_manager_ssh_url}" --depth 1 "${installer_location}/repository"
+  git clone -n "${precommit_manager_url}" --depth 1 "${installer_location}/repository"
 fi
 cd "${installer_location}/repository" || exit 1
 git fetch --tags --prune -f

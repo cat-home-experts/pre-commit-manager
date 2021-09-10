@@ -135,32 +135,11 @@ else
 fi
 
 if [[ "${answer}" == "y" ]]; then
-  uname_out=$(uname -s)
-  case ${uname_out} in
-    Linux*)     MACHINE=linux;;
-    Darwin*)    MACHINE=darwin;;
-    *)          MACHINE="UNKNOWN:${uname_out}";;
-  esac;
-
-  if [[ "${MACHINE}" == "darwin" ]]; then
-    brew uninstall pre-commit || true
-  elif [[ "${MACHINE}" == "linux" ]]; then
-    [[ -n "$(command -v yum)" ]] && MACHINE=redhat
-    [[ -n "$(command -v apt-get)" ]] && MACHINE=debian
-
-    if [[ "${MACHINE}" == "redhat" ]]; then
-      yum remove pre-commit || true
-    elif [[ "${MACHINE}" == "debian" ]]; then
-      apt-get remove pre-commit || true
-    else
-      echo -e "ERROR - OS unsupported"
-      exit 1
-    fi
+  if python -m pip uninstall pre-commit 2>/dev/null || python3 -m pip uninstall pre-commit 2>/dev/null || npm uninstall -g pre-commit 2>/dev/null; then
+    echo -e "\033[1;32m[✓]\033[0m pre-commit framework binaries removed"
   else
-    echo -e "ERROR - OS unsupported"
-    exit 1
+    echo -e "\033[1;37m\033[41mNo relevant package manager found. You will need to install python+pip or npm to uninstall pre-commit.\033[0m"
   fi
-  echo -e "\033[1;32m[✓]\033[0m pre-commit framework binaries removed"
 fi
 
 
