@@ -63,7 +63,7 @@ $HOME/Documents/GitHub/organization/pre-commit-manager
 :metal: Just run:
 
 ```
-git clone git@github.com:cat-home-experts/pre-commit-manager.git
+git clone https://github.com/cat-home-experts/pre-commit-manager.git
 cd pre-commit-manager
 ./sources/install-precommit.sh
 ```
@@ -180,7 +180,7 @@ pre-commit clean
 You will be guided by the uninstallation script `sources/uninstall-precommit.sh`.
 
 ```
-git clone git@github.com:cat-home-experts/pre-commit-manager.git
+git clone https://github.com/cat-home-experts/pre-commit-manager.git
 cd pre-commit-manager
 ./sources/uninstall-precommit.sh
 # or

@@ -3,9 +3,7 @@ name: "Security Scanner"
 
 on:
   pull_request:
-    types: [opened]
   push:
-  workflow_dispatch:
 
 
 defaults:
@@ -21,8 +19,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          # Using a fetch-depth of '0' clones the entire history. If you want to do a faster clone, use '2', but that is not guaranteed to work with pull requests
-          fetch-depth: 2
+          # Using a fetch-depth of '0' clones the entire history.
+          # If you want to do a faster clone, use '2', but that is not guaranteed to work with pull requests
+          fetch-depth: 0
       - name: "Set Job Vars"
         id: set_vars
         run: |
@@ -39,7 +38,14 @@ jobs:
         with:
           token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
           event-type: slack-notification
-          client-payload: '{"type": "alert", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#FF0000", "title": "${{ github.repository }} Secret Leak Analysis${{ steps.set_vars.outputs.commmit_info }}", "message": "🚨 Secret exposed.\n\nCheck https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"}'
+          client-payload: '{ \
+            "type": "alert", \
+            "ref": "${{ github.ref }}", \
+            "sha": "${{ github.sha }}", \
+            "color": "#FF0000", \
+            "title": "${{ github.repository }} Secret Leak Analysis${{ steps.set_vars.outputs.commmit_info }}", \
+            "message": "🚨 Secret exposed.\n\nCheck https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+          }'
 
 
   sast_scanner:
@@ -51,14 +57,11 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: "Set ShiftLeft Scan Baseline against Default Branch"
-        id: baseline_prep
+      - name: "Set Job Vars"
+        id: set_vars
         run: |
           if [[ ${{ github.event_name }} == 'push' && ${{ github.ref }} == "refs/heads/${{ github.event.repository.default_branch }}" ]]; then
             echo "::set-output name=commmit_info:: [Push on Main]"
-          fi
-          if [[ -f ".security/automated/.sastscan.baseline" ]]; then
-            cp .security/automated/.sastscan.baseline .
           fi
       - name: "SAST: ShiftLeftScan.io Scan"
         id: shiftleft_scan
@@ -66,32 +69,23 @@ jobs:
         with:
           output: .security/sast-reports
         env:
-          WORKSPACE: ""
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SAST_SCAN_SRC_DIR: .security
           TOOLS_CONFIG_DIR: .security
           CODE_SNIPPET_MAX_LINES: 4
           #SCAN_DEBUG_MODE: debug
-          #SKIP_INSIGHTS: false # for Python analysis
-      - name: "Update ShiftLeft Scan Baseline against Default Branch"
-        id: baseline_update
-        if: ${{ github.event_name == 'push' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
-        run: |
-          git config --global user.name "${{ github.actor }}"
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-          mkdir -p .security/automated
-          cp -f .security/sast-reports/.sastscan.baseline .security/automated/.sastscan.baseline
-          git add .security/automated/.sastscan.baseline
-          git commit -m "Update ShiftLeft scan baseline"
-          git push
       - name: "Build the report matrix and report defect"
         id: sarif_reports_matrix
         run: |
           echo " ===> Building the matrix of available SARIF reports:"
-          json_array="{\"include\":$(ls .security/sast-reports/*.sarif | jq -s -R -c 'split("\n") | to_entries | map( {"report_name": (.value |= (sub("^.security/sast-reports/"; ""))).value, "report_path": (.value)} )'[:-1])}"
+          # yamllint disable
+          json_array="{ \"include\":$(ls .security/sast-reports/*.sarif | jq -s -R -c 'split("\n") | to_entries | map( {"report_name": (.value |= (sub("^.security/sast-reports/"; ""))).value, "report_path": (.value)} )'[:-1])}"
+          # yamllint enable
           echo "$json_array"
           echo "::set-output name=matrix::$json_array"
-          if [[ ! -f ".security/sast-reports/ngsast-report.findings.json" ]] || [[ -z "$(cat ".security/sast-reports/ngsast-report.findings.json" | jq '.findings[]')" ]]; then
-            echo "::set-output name=defect::false"
+          if [[ ! -f ".security/sast-reports/ngsast-report.findings.json" ]] || \
+            [[ -z "$(cat ".security/sast-reports/ngsast-report.findings.json" | jq '.findings[]')" ]]; then
+              echo "::set-output name=defect::false"
           else
             echo "::set-output name=defect::true"
           fi
@@ -107,7 +101,14 @@ jobs:
         with:
           token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
           event-type: slack-notification
-          client-payload: '{"type": "alert", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#FF0000", "title": "${{ github.repository }} SAST${{ steps.baseline_prep.outputs.commit_info }}", "message": "🚨 Vulnerabilty discovered.\n\nCheck https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"}'
+          client-payload: '{ \
+            "type": "alert", \
+            "ref": "${{ github.ref }}", \
+            "sha": "${{ github.sha }}", \
+            "color": "#FF0000", \
+            "title": "${{ github.repository }} SAST${{ steps.baseline_prep.outputs.commit_info }}", \
+            "message": "🚨 Vulnerabilty discovered.\n\nCheck https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+          }'
 
 
   sarif_reports_uploader:

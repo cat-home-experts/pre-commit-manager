@@ -2,10 +2,6 @@ name: "PR Labeler"
 
 on:
   pull_request:
-    types: [opened]
-  push:
-    branches-ignore:
-      - 'main'
 
 jobs:
   pr-labeler:

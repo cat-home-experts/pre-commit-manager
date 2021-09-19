@@ -1,8 +1,51 @@
 title = "gitleaks config"
 
+#--------------- GitHub ---------------
+[[rules]]
+    description = "Github Personal Access Token"
+    regex = '''ghp_[0-9a-zA-Z]{36}'''
+    tags = ["key", "Github"]
+
+[[rules]]
+    description = "Github OAuth Access Token"
+    regex = '''gho_[0-9a-zA-Z]{36}'''
+    tags = ["key", "Github"]
+
+[[rules]]
+    description = "Github App Token"
+    regex = '''(ghu|ghs)_[0-9a-zA-Z]{36}'''
+    tags = ["key", "Github"]
+
+[[rules]]
+    description = "Github Refresh Token"
+    regex = '''ghr_[0-9a-zA-Z]{76}'''
+    tags = ["key", "Github"]
+
+[[rules]]
+    description = "Github"
+    regex = '''(?i)github(.{0,20})?(?-i)['\"][0-9a-zA-Z]{35,40}['\"]'''
+    tags = ["key", "Github"]
+
+#--------------- Google ---------------
+[[rules]]
+    description = "Google API key"
+    regex = '''AIza[0-9A-Za-z\\-_]{35}'''
+    tags = ["key", "Google"]
+
+[[rules]]
+    description = "Google (GCP) Service Account"
+    regex = '''"type": "service_account"'''
+    tags = ["key", "Google"]
+
+#--------------- AWS ---------------
 [[rules]]
     description = "AWS Access Key"
     regex = '''(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}'''
+    tags = ["key", "AWS"]
+
+[[rules]]
+    description = "AWS Secret Key"
+    regex = '''(?i)aws(.{0,20})?(?-i)['\"][0-9a-zA-Z\/+]{40}['\"]'''
     tags = ["key", "AWS"]
 
 [[rules]]
@@ -11,51 +54,33 @@ title = "gitleaks config"
     tags = ["AWS"]
 
 [[rules]]
-    description = "AWS Secret Key"
-    regex = '''(?i)aws(.{0,20})?(?-i)['\"][0-9a-zA-Z\/+]{40}['\"]'''
-    tags = ["key", "AWS"]
-
-[[rules]]
     description = "AWS MWS key"
     regex = '''amzn\.mws\.[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'''
     tags = ["key", "AWS", "MWS"]
 
-[[rules]]
-    description = "Github"
-    regex = '''(?i)github(.{0,20})?(?-i)['\"][0-9a-zA-Z]{35,40}['\"]'''
-    tags = ["key", "Github"]
-
+#--------------- Slack ---------------
 [[rules]]
     description = "Slack"
     regex = '''xox[baprs]-([0-9a-zA-Z]{10,48})?'''
     tags = ["key", "Slack"]
 
 [[rules]]
-    description = "EC"
-    regex = '''-----BEGIN EC PRIVATE KEY-----'''
-    tags = ["key", "EC"]
-
-[[rules]]
-    description = "Google API key"
-    regex = '''AIza[0-9A-Za-z\\-_]{35}'''
-    tags = ["key", "Google"]
-
-[[rules]]
     description = "Slack Webhook"
     regex = '''https://hooks.slack.com/services/T[a-zA-Z0-9_]{8}/B[a-zA-Z0-9_]{8}/[a-zA-Z0-9_]{24}'''
     tags = ["key", "slack"]
 
+#--------------- Twilio ---------------
 [[rules]]
-    description = "Env Var"
-    regex = '''(?i)(apikey|secret|key|api|password|pass|pw|host)=[0-9a-zA-Z-_.{}]{4,120}'''
+    description = "Twilio API key"
+    regex = '''(?i)twilio(.{0,20})?SK[0-9a-f]{32}'''
+    tags = ["key", "twilio"]
 
 [[rules]]
-    description = "Port"
-    regex = '''(?i)port(.{0,4})?[0-9]{1,10}'''
-    [rules.allowlist]
-        regexes = ['''(?i)port ''']
-        description = "ignore export "
+    description = "Asymmetric Private Key"
+    regex = '''-----BEGIN ((EC|PGP|DSA|RSA|OPENSSH) )?PRIVATE KEY( BLOCK)?-----'''
+    tags = ["key", "AsymmetricPrivateKey"]
 
+#--------------- Emails ---------------
 [[rules]]
     description = "Email"
     regex = '''[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}'''
@@ -70,29 +95,10 @@ title = "gitleaks config"
             '''git@gitlab.com'''
         ]
 
+#--------------- Variables ---------------
 [[rules]]
-    description = "Generic Credential"
-    regex = '''(?i)(dbpasswd|dbuser|dbname|dbhost|api_key|apikey|secret|key|api|password|user|guid|hostname|pw|auth)(.{0,20})?['|"]([0-9a-zA-Z-_\/+!{}/=]{4,120})['|"]'''
-    tags = ["key", "API", "generic"]
-    #ignore some false positive leaks
-    [rules.allowlist]
-        description = "ignore pragma"
-        regexes = [
-            '''(?i)(# pragma: allowlist secret)''',
-        ]
-
-[[rules]]
-    description = "High Entropy"
-    regex = '''[0-9a-zA-Z-_!{}/=]{4,120}'''
-    file = '''(?i)(dump.sql|high-entropy-misc.txt)$'''
-    tags = ["entropy"]
-    [[rules.Entropies]]
-        Min = "4.3"
-        Max = "7.0"
-    [rules.allowlist]
-        description = "ignore some"
-        files = ['''(.*pub|env)$''']
-        paths = ['''(security.*)''']
+    description = "Env Var"
+    regex = '''(?i)(apikey|secret|key|api|password|pass|pw|host)=[0-9a-zA-Z-_.{}]{4,120}'''
 
 [[rules]]
     description = "Potential bash var"
@@ -104,10 +110,36 @@ title = "gitleaks config"
             Group = "1"
 
 [[rules]]
+    description = "Generic Credential"
+    regex = '''(?i)(dbpasswd|dbuser|dbname|dbhost|api_key|apikey|secret|key|api|password|user|guid|hostname|pw|auth)(.{0,20})?['|"]([0-9a-zA-Z-_\/+!{}/=]{4,120})['|"]'''
+    tags = ["key", "API", "generic"]
+    #ignore some false positive leaks
+    [rules.allowlist]
+        description = "ignore pragma"
+        regexes = [
+            '''(?i)(# pragma: allowlist secret)''',
+        ]
+
+#--------------- Files ---------------
+[[rules]]
     description = "Files with keys and credentials"
     file = '''(?i)(id_rsa|passwd|id_rsa.pub|pgpass|pem|ppk|key|shadow)'''
 
-# Global allowlist
+#--------------- Entropy ---------------
+[[rules]]
+    description = "entropy and regex"
+    regex = '''['|"]([0-9a-zA-Z-._{}$\/\+=]{20,120})['|"]'''
+    tags = ["entropy"]
+        [[rules.Entropies]]
+            Min = "4.5"
+            Max = "4.7"
+            Group = "1"
+        [[rules.Entropies]]
+            Min = "5.5"
+            Max = "6.3"
+            Group = "1"
+
+#--------------- Global Allow Section ---------------
 [allowlist]
     description = "image allowlists"
     files = ['''(.*?)(jpg|gif|doc|pdf|bin)$''']
