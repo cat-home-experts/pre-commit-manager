@@ -164,8 +164,8 @@ __`.pre-commit-config.yaml`__:
  default_stages: [push]
  repos:
  - repo: https://github.com/cat-home-experts/pre-commit-manager
--  rev: v1.0
-+  rev: v1.1
+-  rev: v1.0.0
++  rev: 1.1.0
    hooks:
    - id: detect-unencrypted-ansible-vault
      exclude: '^$'
