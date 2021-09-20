@@ -21,4 +21,4 @@ repos:
   rev: v0.7.2
   hooks:
   - id: shellcheck
-    args: ["--severity=warning"] # Only show errors and warnings
+    args: ['--severity=warning'] # Only show errors and warnings

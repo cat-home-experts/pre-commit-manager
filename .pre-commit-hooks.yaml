@@ -1,15 +1,50 @@
 - id: detect-unencrypted-ansible-vault
   name: Ansible Vaults Encryption Check
-  description: Checks that Ansible vault files are encrypted
-  entry: detect-unencrypted-ansible-vault.sh
+  description: Checks that Ansible vault files are encrypted.
+  entry: pre-commit-hooks/detect-unencrypted-ansible-vault.sh
   files: ((^|/)vault|vault.y[a]{0,1}ml$|.vault$)
   language: script
   types: [executable]
 
 - id: detect-unsigned-commit
   name: Git Commit PGP Signature Verification
-  description: Warns you when you don't push signed commits
-  entry: detect-unsigned-commit.sh
+  description: Warns you when you don't push signed commits.
+  entry: pre-commit-hooks/detect-unsigned-commit.sh
   language: script
   types: [executable]
   always_run: true
+
+- id: terragrunt-fmt
+  name: Terragrunt Format
+  description: Format all Terragrunt configurations under the folders passed as parameter.
+  entry: pre-commit-hooks/terragrunt-fmt.sh
+  require_serial: true
+  language: script
+
+- id: terragrunt-validate
+  name: Terragrunt Validate
+  description: Validates all Terragrunt configurations under the folders passed as parameter.
+  entry: pre-commit-hooks/terragrunt-validate.sh
+  require_serial: true
+  language: script
+
+- id: terraform-fmt
+  name: Terraform Format
+  description: Format all Terraform configurations passed as parameter.
+  entry: pre-commit-hooks/terraform-fmt.sh
+  require_serial: true
+  language: script
+
+- id: terraform-validate
+  name: Terraform Validate
+  description: Validates all Terraform configurations passed as parameter.
+  entry: pre-commit-hooks/terraform-validate.sh
+  require_serial: true
+  language: script
+
+- id: terraform-docs
+  name: Terraform Docs
+  description: Generate the module/component README.md Terraform Documentation with inject mode.
+  entry: pre-commit-hooks/terraform-docs.sh
+  require_serial: true
+  language: script
