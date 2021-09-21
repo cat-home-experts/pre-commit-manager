@@ -34,6 +34,7 @@ jobs:
           config-path: .security/credscan-config.toml
       - name: "Trigger the Notifier"
         if: failure()
+        continue-on-error: true
         uses: peter-evans/repository-dispatch@v1.1.3
         with:
           token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
@@ -46,6 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.sarif_reports_matrix.outputs.matrix }}
+      defect: ${{ steps.sarif_reports_matrix.outputs.defect }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -58,14 +60,13 @@ jobs:
           fi
       - name: "SAST: ShiftLeftScan.io Scan"
         id: shiftleft_scan
-        uses: ShiftLeftSecurity/scan-action@master
+        uses: ShiftLeftSecurity/scan-action@v1.3.0
         with:
           output: .security/sast-reports
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SAST_SCAN_SRC_DIR: .security
-          TOOLS_CONFIG_DIR: .security
-          CODE_SNIPPET_MAX_LINES: 4
+          SAST_SCAN_SRC_DIR: ${{ github.workspace }}/.security
+          TOOLS_CONFIG_DIR: ${{ github.workspace }}/.security
           #SCAN_DEBUG_MODE: debug
       - name: "Build the report matrix and report defect"
         id: sarif_reports_matrix
@@ -83,6 +84,7 @@ jobs:
             echo "::set-output name=defect::true"
           fi
       - name: "Upload ShiftLeft Scan Reports as Artifacts"
+        if: steps.sarif_reports_matrix.outputs.defect == 'true'
         uses: actions/upload-artifact@v2.2.4
         with:
           name: SAST-Reports
@@ -90,6 +92,7 @@ jobs:
           retention-days: 90
       - name: "Trigger the Notifier"
         if: steps.sarif_reports_matrix.outputs.defect == 'true'
+        continue-on-error: true
         uses: peter-evans/repository-dispatch@v1.1.3
         with:
           token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
@@ -101,6 +104,7 @@ jobs:
     name: "SAST SARIF Reports Uploader"
     runs-on: ubuntu-latest
     needs: [sast_scanner]
+    if: needs.sast_scanner.outputs.defect == 'true'
     strategy:
       fail-fast: true
       matrix: ${{ fromJson(needs.sast_scanner.outputs.matrix) }}
@@ -112,6 +116,7 @@ jobs:
           name: SAST-Reports
           path: .security/sast-reports
       - name: "Upload ${{ matrix.report_name }} to GitHub"
+        continue-on-error: true
         uses: github/codeql-action/upload-sarif@v1.0.13
         with:
           sarif_file: ${{ matrix.report_path }}

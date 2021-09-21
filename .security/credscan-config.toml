@@ -86,7 +86,7 @@ title = "gitleaks config"
     regex = '''[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}'''
     tags = ["email"]
     [rules.allowlist]
-        # files = ['''(?i)bashrc''']
+        # files = ['''(?i)bashrc'''] # Example of allow on a file
         # description = "ignore bashrc emails"
         description = "ignore gitconfig emails"
         regexes = [
@@ -94,6 +94,7 @@ title = "gitleaks config"
             '''git@github.com''',
             '''git@gitlab.com''',
             '''(.*)Copyright(.*)''',
+            '''(.*)Co-authored-by:(.*)''',
         ]
 
 #--------------- Variables ---------------
