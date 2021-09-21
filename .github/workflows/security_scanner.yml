@@ -38,14 +38,7 @@ jobs:
         with:
           token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
           event-type: slack-notification
-          client-payload: '{ \
-            "type": "alert", \
-            "ref": "${{ github.ref }}", \
-            "sha": "${{ github.sha }}", \
-            "color": "#FF0000", \
-            "title": "${{ github.repository }} Secret Leak Analysis${{ steps.set_vars.outputs.commmit_info }}", \
-            "message": "🚨 Secret exposed.\n\nCheck https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
-          }'
+          client-payload: '{ "type": "alert", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#FF0000", "title": "${{ github.repository }} Secret Leak Analysis${{ steps.set_vars.outputs.commmit_info }}", "message": "🚨 Secret exposed.\n\nCheck https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" }'
 
 
   sast_scanner:
@@ -101,14 +94,7 @@ jobs:
         with:
           token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
           event-type: slack-notification
-          client-payload: '{ \
-            "type": "alert", \
-            "ref": "${{ github.ref }}", \
-            "sha": "${{ github.sha }}", \
-            "color": "#FF0000", \
-            "title": "${{ github.repository }} SAST${{ steps.baseline_prep.outputs.commit_info }}", \
-            "message": "🚨 Vulnerabilty discovered.\n\nCheck https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
-          }'
+          client-payload: '{ "type": "alert", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#FF0000", "title": "${{ github.repository }} SAST${{ steps.baseline_prep.outputs.commit_info }}", "message": "🚨 Vulnerabilty discovered.\n\nCheck https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" }'
 
 
   sarif_reports_uploader:
