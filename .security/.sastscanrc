@@ -6,16 +6,5 @@
             "max_medium": 0
         }
     },
-    "scan_type": "credscan,bash,yaml",
-    "scan_tools_args_map": {
-        "credscan": [
-            "gitleaks",
-            "--repo-config-path=.security/credscan-config.toml",
-            "--path=%(src)s",
-            "--leaks-exit-code=0",
-            "--redact",
-            "--no-git",
-            "--format=json"
-        ]
-    }
+    "scan_type": "credscan-safe,bash,yaml"
 }
