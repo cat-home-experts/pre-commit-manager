@@ -95,6 +95,9 @@ title = "gitleaks config"
             '''git@gitlab.com''',
             '''(.*)Copyright(.*)''',
             '''(.*)Co-authored-by:(.*)''',
+            '''(.*)group:(.*)@cathex.io(.*)''',
+            '''(.*)serviceAccount:(.*)gserviceaccount.com(.*)''',
+            '''(.*)# scan:ignore''',
         ]
 
 #--------------- Variables ---------------
@@ -106,17 +109,25 @@ title = "gitleaks config"
         Min = "4.2"
         Max = "7.0"
     [rules.allowlist]
-        regexes = ['''(?i)(expect|assert|yourpassword|foo|bar)''']
         description = "ignore default"
+        regexes = [
+            '''(?i)(expect|assert|yourpassword|foo|bar)''',
+            '''(.*)# scan:ignore''',
+        ]
 
 [[rules]]
     description = "Potential bash var"
     regex='''(?i)(=)([0-9a-zA-Z-_!{}=]{4,120})'''
     tags = ["key", "bash", "API", "generic"]
-        [[rules.Entropies]]
-            Min = "3.5"
-            Max = "4.5"
-            Group = "1"
+    [[rules.Entropies]]
+        Min = "3.5"
+        Max = "4.5"
+        Group = "1"
+    [rules.allowlist]
+        description = "ignore default"
+        regexes = [
+            '''(.*)# scan:ignore''',
+        ]
 
 [[rules]]
     description = "Generic Credential"
@@ -124,9 +135,9 @@ title = "gitleaks config"
     tags = ["key", "API", "generic"]
     #ignore some false positive leaks
     [rules.allowlist]
-        description = "ignore pragma"
+        description = "ignore default"
         regexes = [
-            '''(?i)(# pragma: allowlist secret)''',
+            '''(.*)# scan:ignore''',
         ]
 
 #--------------- Files ---------------
@@ -139,10 +150,15 @@ title = "gitleaks config"
     description = "entropy and regex"
     regex = '''['|"]([0-9a-zA-Z-._{}$\/\+=]{20,120})['|"]'''
     tags = ["entropy"]
-        [[rules.Entropies]]
-            Min = "5.5"
-            Max = "6.3"
-            Group = "1"
+    [[rules.Entropies]]
+        Min = "5.5"
+        Max = "6.3"
+        Group = "1"
+    [rules.allowlist]
+        description = "ignore default"
+        regexes = [
+            '''(.*)# scan:ignore''',
+        ]
 
 #--------------- Global Allow Section ---------------
 [allowlist]

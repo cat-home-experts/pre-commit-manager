@@ -24,6 +24,7 @@ repos:
   hooks:
   - id: detect-secrets
     exclude: '^$'
+    args: ['--exclude-lines', '(.*)# scan:ignore']
 
 - repo: https://github.com/koalaman/shellcheck-precommit
   rev: v0.7.2
