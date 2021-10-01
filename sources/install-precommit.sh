@@ -178,7 +178,7 @@ chmod +x "${installer_location}/deploy_hooks.sh"
 echo -e "\033[1;32m[✓]\033[0m Hooks deployer script created: ${installer_location}/deploy_hooks.sh"
 
 # Install a Cron job which deploys the pre-commit baseline config on the local repositories being scanned
-croncmd="/bin/bash '${installer_location}/deploy_hooks.sh'"
+croncmd="/bin/bash -l -c '${installer_location}/deploy_hooks.sh'"
 cronjob="*/${cronjob_frequency_mins} * * * * ${croncmd}"
 if [[ -z "$(crontab -l | grep "${croncmd}")" ]]; then
   (crontab -l || true | grep -v -F "${croncmd}"; echo -e "${cronjob}") | crontab -

@@ -14,7 +14,7 @@ fi
 
 if [[ "${answer}" == "y" ]]; then
   # Delete the 1st job definition
-  croncmd="/bin/bash '${installer_location}/deploy_hooks.sh'"
+  croncmd="/bin/bash -l -c '${installer_location}/deploy_hooks.sh'"
   if [[ -n "$(crontab -l | grep "$croncmd")" ]]; then
     ( crontab -l | grep -v -F "$croncmd" ) | crontab -
     echo -e "\033[1;32m[✓]\033[0m Hooks deployer cron job removed"
@@ -141,13 +141,13 @@ if [[ "${answer}" == "y" ]]; then
     Darwin*)    MACHINE=darwin;;
     *)          MACHINE="UNKNOWN:${uname_out}";;
   esac;
-  
+
   if [[ "${MACHINE}" == "darwin" ]]; then
     brew uninstall pre-commit || true
   elif [[ "${MACHINE}" == "linux" ]]; then
     [[ -n "$(command -v yum)" ]] && MACHINE=redhat
     [[ -n "$(command -v apt-get)" ]] && MACHINE=debian
-    
+
     if [[ "${MACHINE}" == "redhat" ]]; then
       yum remove pre-commit || true
     elif [[ "${MACHINE}" == "debian" ]]; then
