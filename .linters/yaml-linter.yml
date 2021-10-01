@@ -28,6 +28,6 @@ rules:
     # ignore: |
     #   .github/workflows/security_scanner.yml
     level: warning
-    max: 250
+    max: 350
     allow-non-breakable-inline-mappings: true
   truthy: disable
