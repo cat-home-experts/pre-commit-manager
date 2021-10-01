@@ -25,7 +25,7 @@ repos:
     exclude: '^$'
 
 - repo: https://github.com/cat-home-experts/pre-commit-manager
-  rev: v1.1.0
+  rev: 1.1.0
   hooks:
   - id: terragrunt-fmt
     files: 'folders/.*(.hcl)'
