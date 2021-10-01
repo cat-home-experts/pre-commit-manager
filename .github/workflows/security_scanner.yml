@@ -117,6 +117,6 @@ jobs:
           path: .security/sast-reports
       - name: "Upload ${{ matrix.report_name }} to GitHub"
         continue-on-error: true
-        uses: github/codeql-action/upload-sarif@v1.0.13
+        uses: github/codeql-action/upload-sarif@v1.0.15
         with:
           sarif_file: ${{ matrix.report_path }}
