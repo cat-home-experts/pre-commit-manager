@@ -6,7 +6,7 @@ repos:
   rev: v0.7.2
   hooks:
   - id: shellcheck
-    args: ["--severity=warning"] # Only show errors and warnings
+    args: ['--severity=warning'] # Only show errors and warnings
 
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v4.0.1
@@ -24,18 +24,37 @@ repos:
   - id: detect-secrets
     exclude: '^$'
 
-- repo: https://github.com/antonbabenko/pre-commit-terraform
-  rev: v1.50.0
+- repo: https://github.com/cat-home-experts/pre-commit-manager
+  rev: v1.1.0
   hooks:
-    - id: terragrunt_fmt
-    - id: terragrunt_validate
-    - id: terraform_fmt
-    - id: terraform_validate
-    - id: terraform_tfsec
+  - id: terragrunt-fmt
+    files: 'folders/.*(.hcl)'
+    exclude: '(.terragrunt-cache/|.terraform/|.terraform.lock)'
+    args: ['--arg','--terragrunt-check'] # for identifying but not fixing automatically the linting issues
+    stages: [commit]
+  - id: terragrunt-validate
+    files: 'folders/.*(.hcl)'
+    exclude: '(.terragrunt-cache/|.terraform/|.terraform.lock)'
+    args: ['--exclude-path', 'folders/development/dashboard'] # if you want to exclude any specific folder and its children
+    stages: [commit]
+  - id: terraform-fmt
+    files: '.*(.tf|.tfvars)'
+    exclude: '(.terragrunt-cache/|.terraform/|.terraform.lock|examples/)'
+    args: ['--arg', '-write=false -check'] # for identifying but not fixing automatically the linting issues
+    stages: [commit]
+  - id: terraform-validate
+    files: '.*(.tf|.tfvars)'
+    exclude: '(.terragrunt-cache/|.terraform/|.terraform.lock|examples/)'
+    args: ['--exclude-path', 'folders/development/dashboard'] # if you want to exclude any specific folder and its children
+    stages: [commit]
+  - id: terraform-docs
+    files: '.*(.tf|.tfvars)'
+    exclude: '(.terragrunt-cache/|.terraform/|.terraform.lock|examples/)'
+    stages: [commit]
 
 - repo: https://github.com/bridgecrewio/checkov.git
   rev: '2.0.399'
   hooks:
   - id: checkov
     verbose: true
-    args: [--soft-fail]
+    args: ['--soft-fail']
