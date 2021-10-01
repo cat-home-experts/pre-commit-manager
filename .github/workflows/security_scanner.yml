@@ -1,0 +1,132 @@
+name: "Security Scanner"
+
+
+on:
+  pull_request:
+    types: [opened]
+    branches: [ "**" ]
+  push:
+    branches: [ "**" ]
+  workflow_dispatch:
+
+
+defaults:
+  run:
+    shell: bash
+
+
+jobs:
+
+  gitleaks:
+    name: "Secrets Leaks Detection"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # Using a fetch-depth of '0' clones the entire history. If you want to do a faster clone, use '2', but that is not guaranteed to work with pull requests
+          fetch-depth: 2
+      - name: "Set Job Vars"
+        id: set_vars
+        run: |
+          if [[ ${{ github.event_name }} == 'push' && ${{ github.ref }} == "refs/heads/${{ github.event.repository.default_branch }}" ]]; then
+            echo "::set-output name=commmit_info:: [Push on Main]"
+          fi
+      - name: "Run GitLeaks scan"
+        uses: zricethezav/gitleaks-action@v1.6.0
+        with:
+          config-path: .security/credscan-config.toml
+      - name: "Trigger the Notifier"
+        if: failure()
+        uses: peter-evans/repository-dispatch@v1.1.3
+        with:
+          token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
+          event-type: slack-notification
+          client-payload: '{"type": "alert", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#FF0000", "title": "${{ github.repository }} Secret Leak Analysis${{ steps.set_vars.outputs.commmit_info }}", "message": "🚨 Secret exposed.\n\nCheck https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"}'
+
+
+  sast_scanner:
+    name: "SAST Vulnerability Scanner"
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.sarif_reports_matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: "Set ShiftLeft Scan Baseline against Default Branch"
+        id: baseline_prep
+        run: |
+          if [[ ${{ github.event_name }} == 'push' && ${{ github.ref }} == "refs/heads/${{ github.event.repository.default_branch }}" ]]; then
+            echo "::set-output name=commmit_info:: [Push on Main]"
+          fi
+          if [[ -f ".security/automated/.sastscan.baseline" ]]; then
+            cp .security/automated/.sastscan.baseline .
+          fi
+      - name: "SAST: ShiftLeftScan.io Scan"
+        id: shiftleft_scan
+        uses: ShiftLeftSecurity/scan-action@master
+        with:
+          output: .security/sast-reports
+        env:
+          WORKSPACE: ""
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TOOLS_CONFIG_DIR: .security
+          CODE_SNIPPET_MAX_LINES: 4
+          #SCAN_DEBUG_MODE: debug
+          #SKIP_INSIGHTS: false # for Python analysis
+      - name: "Update ShiftLeft Scan Baseline against Default Branch"
+        id: baseline_update
+        if: ${{ github.event_name == 'push' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          mkdir -p .security/automated
+          cp -f .security/sast-reports/.sastscan.baseline .security/automated/.sastscan.baseline
+          git add .security/automated/.sastscan.baseline
+          git commit -m "Update ShiftLeft scan baseline"
+          git push
+      - name: "Build the report matrix and report defect"
+        id: sarif_reports_matrix
+        run: |
+          echo " ===> Building the matrix of available SARIF reports:"
+          json_array="{\"include\":$(ls .security/sast-reports/*.sarif | jq -s -R -c 'split("\n") | to_entries | map( {"report_name": (.value |= (sub("^.security/sast-reports/"; ""))).value, "report_path": (.value)} )'[:-1])}"
+          echo "$json_array"
+          echo "::set-output name=matrix::$json_array"
+          if [[ ! -f ".security/sast-reports/ngsast-report.findings.json" ]] || [[ -z "$(cat ".security/sast-reports/ngsast-report.findings.json" | jq '.findings[]')" ]]; then
+            echo "::set-output name=defect::false"
+          else
+            echo "::set-output name=defect::true"
+          fi
+      - name: "Upload ShiftLeft Scan Reports as Artifacts"
+        uses: actions/upload-artifact@v2.2.4
+        with:
+          name: SAST-Reports
+          path: .security/sast-reports
+          retention-days: 90
+      - name: "Trigger the Notifier"
+        if: steps.sarif_reports_matrix.outputs.defect == 'true'
+        uses: peter-evans/repository-dispatch@v1.1.3
+        with:
+          token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
+          event-type: slack-notification
+          client-payload: '{"type": "alert", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#FF0000", "title": "${{ github.repository }} SAST${{ steps.baseline_prep.outputs.commit_info }}", "message": "🚨 Vulnerabilty discovered.\n\nCheck https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"}'
+
+
+  sarif_reports_uploader:
+    name: "SAST SARIF Reports Uploader"
+    runs-on: ubuntu-latest
+    needs: [sast_scanner]
+    strategy:
+      fail-fast: true
+      matrix: ${{ fromJson(needs.sast_scanner.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: "Retrieve SARIF Reports"
+        uses: actions/download-artifact@v2.0.10
+        with:
+          name: SAST-Reports
+          path: .security/sast-reports
+      - name: "Upload ${{ matrix.report_name }} to GitHub"
+        uses: github/codeql-action/upload-sarif@v1.0.13
+        with:
+          sarif_file: ${{ matrix.report_path }}
