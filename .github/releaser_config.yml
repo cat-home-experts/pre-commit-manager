@@ -45,6 +45,7 @@ categories:
       - 'chore'
       - 'docs'
       - 'doc'
+      - 'dependencies'
 exclude-labels:
   - 'skip-changelog'
 prerelease: false
@@ -66,6 +67,7 @@ version-resolver:
       - 'chore'
       - 'docs'
       - 'doc'
+      - 'dependencies'
   default: minor
 template: |
   # What's Changed
