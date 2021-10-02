@@ -11,6 +11,10 @@ defaults:
     shell: bash
 
 
+env:
+  scan_depth: 1
+
+
 jobs:
 
   gitleaks:
@@ -21,7 +25,7 @@ jobs:
         with:
           # Using a fetch-depth of '0' clones the entire history.
           # If you want to do a faster clone, use '2', but that is not guaranteed to work with pull requests
-          fetch-depth: 0
+          fetch-depth: ${{ env.scan_depth }}
       - name: "Set Job Vars"
         id: set_vars
         run: |
@@ -51,7 +55,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          fetch-depth: 0
+          fetch-depth: ${{ env.scan_depth }}
       - name: "Set Job Vars"
         id: set_vars
         run: |
