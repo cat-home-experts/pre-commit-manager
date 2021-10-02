@@ -21,7 +21,7 @@ if [[ "${answer}" == "y" ]]; then
   fi
 
   # Delete the 2nd job
-  croncmd="pre-commit gc"
+  croncmd="/bin/bash -l -c 'pre-commit gc'"
   if [[ -n "$(crontab -l | grep "$croncmd")" ]]; then
     ( crontab -l | grep -v -F "$croncmd" ) | crontab -
     echo -e "\033[1;32m[✓]\033[0m pre-commit cache cleanup job removed"
