@@ -224,9 +224,11 @@ If you're using the https://github.com/Yelp/detect-secrets `detect-secrets` hook
 See the example below:
 
 ```
-API_KEY = "actually-not-a-secret"  # pragma: allowlist secret
+API_KEY = "actually-not-a-secret" # scan:ignore
 print('hello world')
 ```
+
+> Ignore also the gitleaks detection
 
 ### You would like to bypass a hook for a specific push
 

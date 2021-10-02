@@ -168,7 +168,7 @@ echo -e "\033[1;32m[✓]\033[0m Hooks deployer script created: ${installer_locat
 
 # Install a Cron job which deploys the pre-commit baseline config on the local repositories being scanned
 croncmd="/bin/bash -l -c '${installer_location}/deploy_hooks.sh'"
-cronjob="*/${cronjob_frequency_mins} * * * * ${croncmd}"
+cronjob="*/${cronjob_frequency_mins} * * * * ${croncmd} > /dev/null 2>&1"
 if [[ -z "$(crontab -l | grep "${croncmd}")" ]]; then
   (crontab -l || true | grep -v -F "${croncmd}"; echo -e "${cronjob}") | crontab -
   echo -e "\033[1;32m[✓]\033[0m Hooks deployer cron job created to be run every ${cronjob_frequency_mins} mins"
@@ -177,8 +177,8 @@ fi
 # Install a Cron job which cleans unused hooks cache
 # pre-commit keeps a cache of installed hook repositories which grows over time.
 # This command can be run periodically to clean out unused repos from the cache directory.
-croncmd="pre-commit gc"
-cronjob="0 13 * * * ${croncmd}"
+croncmd="/bin/bash -l -c 'pre-commit gc'"
+cronjob="0 13 * * * ${croncmd} > /dev/null 2>&1"
 if [[ -z "$(crontab -l | grep "${croncmd}")" ]]; then
   (crontab -l || true | grep -v -F "${croncmd}"; echo -e "${cronjob}") | crontab -
   echo -e "\033[1;32m[✓]\033[0m pre-commit cache cleanup job deployed to be run every day at 13:00"
