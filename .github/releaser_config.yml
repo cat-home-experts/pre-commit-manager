@@ -19,8 +19,6 @@ autolabeler:
     title:
       - '/fix/i'
   - label: 'chore'
-    files:
-      - '*.md'
     branch:
       - '/chore\/.+/'
       - '/docs\/.+/'
