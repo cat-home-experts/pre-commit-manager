@@ -68,9 +68,20 @@ _run_hook() {
           error=1
           echo "Validation failed for $folder"
           echo "$validate_output"
-          echo
         fi
       fi
+
+      set +e
+      validate_output=$(tflint --enable-rule=terraform_unused_declarations 2>&1)
+      validate_code=$?
+      set -e
+      if [[ $validate_code != 0 ]]; then
+        error=1
+        echo "Terraform declaration validation failed for $folder"
+        echo "$validate_output"
+        echo
+      fi
+
       popd > /dev/null
 
     fi
