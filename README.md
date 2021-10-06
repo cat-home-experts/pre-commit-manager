@@ -92,10 +92,10 @@ Pre-Commit can also be run in your CI/CD pipeline. The same hooks you use locall
 │   ├── detect-unsigned-commit.sh           => Hook for unsigned commits detection
 │   ├── detect-unencrypted-ansible-vault.sh => Hook for unencrypted Ansible vaults detection
 │   ├── terraform-fmt.sh                    => Hook running 'terraform fmt'
-│   ├── terraform-validate.sh               => Hook running 'terraform validate'
+│   ├── terraform-validate.sh               => Hook running 'terraform validate' & 'tflint --enable-rule=terraform_unused_declarations
 │   ├── terraform-docs.sh                   => Hook running 'terraform-docs' to initialize or update your README.md
 │   ├── terragrunt-fmt.sh                   => Hook running 'terragrunt hclfmt'
-│   └── terragrunt-validate.sh              => Hook running 'terragrunt validate-inputs' and 'terragrunt validate'
+│   └── terragrunt-validate.sh              => Hook running 'terragrunt validate' & 'terragrunt validate-inputs'
 ├── sources                                 => Manager sources
 │   ├── collection                          => A list of configuration examples that can be used as templates
 │   │   ├── aws.yaml
