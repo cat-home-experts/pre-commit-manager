@@ -36,7 +36,7 @@ _run_hook() {
 
     if [ "$is_excluded" == "false" ]; then
       # If the documentation exists, we prepare it for docs injection the first time
-      if [[ -f "${folder}/README.md" && ! "$(cat "${folder}/README.md")" == *"<!-- BEGIN_TF_DOCS -->"* ]]; then
+      if [[ -f "${folder}/README.md" && ! "$(cat "${folder}/README.md")" == *'<!-- BEGIN_TF_DOCS -->'* ]]; then
         find . -type f -iname 'README.md' -not \( -path '*.terraform/*' -prune -o -path '*.terragrunt-cache/*' -prune -o -path '*tests/*' -prune \) | xargs -n1 -Ifile -- bash -c 'printf "\n\n%s\n%s\n" "<!-- BEGIN_TF_DOCS -->" "<!-- END_TF_DOCS -->" >> "file"'
       fi
       cmd="terraform-docs markdown table --output-file README.md --output-mode inject ${ARGS[*]}"
