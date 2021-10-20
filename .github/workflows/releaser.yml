@@ -12,9 +12,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: release-drafter/release-drafter@v5.15.0
+        id: releaser
         with:
           config-name: releaser_config.yml
           disable-autolabeler: true
           publish: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: "Trigger the Notifier"
+        if: success()
+        uses: peter-evans/repository-dispatch@v1.1.3
+        with:
+          token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
+          event-type: slack-notification
+          client-payload: '{ "type": "build", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#2EB67D", "title": "${{ github.repository }} New Release", "message": "🚀  Check-out ${{ steps.releaser.outputs.html_url }}" }'
