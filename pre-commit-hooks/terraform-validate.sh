@@ -55,7 +55,7 @@ _run_hook() {
       set -e
 
       if [[ $validate_code != 0 ]]; then
-        if [[ "$validate_output" == *"Plugin reinitialization required"* ]]; then
+        if [[ "$validate_output" == *"Plugin reinitialization required"* || "$validate_output" == *"Module not installed"* ]]; then
           set +e
           # Retry mechanism to modules
           init_output=$(terraform init -backend=false 2>&1)
