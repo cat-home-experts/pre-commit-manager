@@ -25,7 +25,7 @@ _run_hook() {
     for excluded_path in "${EXCLUDED_PATHS[@]}"; do
       if [[ "${folder}" =~ ${excluded_path} ]]; then
         is_excluded=true
-        continue
+        break
       fi
     done
 
