@@ -115,7 +115,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: "Retrieve SARIF Reports"
-        uses: actions/download-artifact@v2.0.10
+        uses: actions/download-artifact@v2.1.0
         with:
           name: SAST-Reports
           path: .security/sast-reports
