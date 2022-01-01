@@ -89,7 +89,7 @@ jobs:
           fi
       - name: "Upload ShiftLeft Scan Reports as Artifacts"
         if: steps.sarif_reports_matrix.outputs.defect == 'true'
-        uses: actions/upload-artifact@v2.2.4
+        uses: actions/upload-artifact@v2.3.1
         with:
           name: SAST-Reports
           path: .security/sast-reports
