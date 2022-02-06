@@ -24,7 +24,12 @@ repos:
   hooks:
   - id: detect-secrets
     exclude: '^$'
-    args: ['--exclude-lines', '(.*)# scan:ignore']
+    args: [
+      '--exclude-lines', '(.*)# scan:ignore',
+      '--exclude-lines', '(\s{1,}secret\s{1,}= ".*")',
+      '--exclude-files', '(.*?).sops.yaml$',
+      '--exclude-files', '(.*?)config.enc.yaml$',
+    ]
 
 - repo: https://github.com/koalaman/shellcheck-precommit
   rev: v0.7.2
