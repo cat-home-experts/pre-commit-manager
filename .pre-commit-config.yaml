@@ -29,7 +29,7 @@ repos:
       '--exclude-lines', '(\s{1,}secret\s{1,}= ".*")',
       '--exclude-files', '(.*?).sops.yaml$',
       '--exclude-files', '(.*?)config.enc.yaml$',
-      '--exclude-files', '(.*?)task:? security:secret:(.*?)',
+      '--exclude-files', '(.*?)task\:? security:secret:.*',
     ]
 
 - repo: https://github.com/koalaman/shellcheck-precommit
