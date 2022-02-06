@@ -39,7 +39,7 @@ tasks:
     - echo "📒 {{.TASK}}"
     - if [[ "{{.CLI_ARGS}}" == *"sarif"* ]]; then mkdir -p sarif-reports; fi
     - task: security:filesystem:grype
-    - task: security:secret:gitleaks
+    - task: security:secret:gitleaks  # scan:ignore
 
   security:filesystem:grype:
     desc: Run Grype (Filesystem Vulnerability Scanner)
