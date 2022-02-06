@@ -38,7 +38,6 @@ jobs:
         id: scan
         run: |
           task security -- sarif
-          task docker:security -- sarif
         env:
           GRYPE_DB_CACHE_DIR: /home/runner/.cache/grype
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
