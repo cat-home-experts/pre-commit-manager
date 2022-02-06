@@ -4,8 +4,8 @@ version: '3'
 
 includes:
   docker:
-    taskfile: ./.builder/docker/Taskfile.yml
-    dir: ./.builder/docker
+    taskfile: ./docker/Taskfile.yml
+    dir: ./docker
     optional: true
 
 vars:

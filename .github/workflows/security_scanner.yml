@@ -37,6 +37,7 @@ jobs:
       - name: 'Scan for Vulnerabilities'
         id: scan
         run: |
+          set -e
           task security -- sarif
         env:
           GRYPE_DB_CACHE_DIR: $HOME/.cache/grype
