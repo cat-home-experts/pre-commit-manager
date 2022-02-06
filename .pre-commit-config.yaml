@@ -26,7 +26,7 @@ repos:
     exclude: '^$'
     args: [
       '--exclude-lines', '(.*)# scan:ignore',
-      '--exclude-lines', '^(.*?)task:? security:secret:.*$',
+      '--exclude-lines', '(.*)task:? security:secret:.*',
       '--exclude-lines', '(\s{1,}secret\s{1,}= ".*")',
       '--exclude-files', '(.*?).sops.yaml$',
       '--exclude-files', '(.*?)config.enc.yaml$',
