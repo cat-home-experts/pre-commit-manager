@@ -30,6 +30,7 @@ repos:
       '--exclude-lines', '^(.*?)task:? security:secret:.*$',
       '--exclude-files', '(.*?).sops.yaml$',
       '--exclude-files', '(.*?)config.enc.yaml$',
+      '--debug', 'true'
     ]
 
 - repo: https://github.com/koalaman/shellcheck-precommit
