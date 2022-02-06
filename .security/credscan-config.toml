@@ -23,7 +23,7 @@ title = "gitleaks config"
 
 [[rules]]
     description = "Github"
-    regex = '''(?i)github(.{0,20})?(?-i)['\"][0-9a-zA-Z]{35,40}['\"]'''
+    regex = '''(?i)github(.{0,20})?(?-i)[\"][0-9a-zA-Z]{35,40}[\"]'''
     tags = ["key", "Github"]
 
 #--------------- Google ---------------
@@ -36,6 +36,8 @@ title = "gitleaks config"
     description = "Google (GCP) Service Account"
     regex = '''"type": "service_account"'''
     tags = ["key", "Google"]
+    [rules.allowlist]
+        paths = ['''(.*?)credscan-config.toml$''']
 
 #--------------- AWS ---------------
 [[rules]]
@@ -45,7 +47,7 @@ title = "gitleaks config"
 
 [[rules]]
     description = "AWS Secret Key"
-    regex = '''(?i)aws(.{0,20})?(?-i)['\"][0-9a-zA-Z\/+]{40}['\"]'''
+    regex = '''(?i)aws(.{0,20})?(?-i)[\"][0-9a-zA-Z\/+]{40}[\"]'''
     tags = ["key", "AWS"]
 
 [[rules]]
@@ -83,84 +85,106 @@ title = "gitleaks config"
 #--------------- Emails ---------------
 [[rules]]
     description = "Email"
-    regex = '''[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}'''
+    regex = '''([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4})(.*)'''
     tags = ["email"]
     [rules.allowlist]
-        # files = ['''(?i)bashrc'''] # Example of allow on a file
-        # description = "ignore bashrc emails"
         description = "ignore gitconfig emails"
         regexes = [
             '''[a-zA-Z0-9._%+-]+@users.noreply.github.com''',
             '''git@github.com''',
             '''git@gitlab.com''',
-            '''(.*)Copyright(.*)''',
-            '''(.*)Co-authored-by:(.*)''',
-            '''(.*)group:(.*)@cathex.io(.*)''',
-            '''(.*)serviceAccount:(.*)gserviceaccount.com(.*)''',
-            '''(.*)# scan:ignore''',
+            '''(.*?)Copyright(.*?)''',
+            '''(.*?)Co-authored-by:(.*?)''',
+            '''(.*?)@example.com''',
+            '''(.*?)@domain.tld''',
+            '''alice@gmail.com''',
+            '''joe@gmail.com''',
+            '''example(.*?)@google.com''',
+            '''(.*?)# scan:ignore''',
         ]
 
-#--------------- Variables ---------------
+#-------------- Variables --------------
 [[rules]]
     description = "Env Var"
-    regex = '''(?i)(apikey|secret|password|certificate_osx_p12|certificate_password|codacy_project_token|coveralls_api_token|coveralls_repo_token|coveralls_token|coverity_scan_token|cypress_record_key|database_password|db_password|deploy_password|deploy_token|digitalocean_access_token|docker_hub_password|docker_password|dockerhub_password|sonatype_password|firebase_api_token|firebase_token|firefox_secret|flask_secret_key|fossa_api_key|gcloud_service_key|gcr_password|gh_api_key|gh_next_oauth_client_secret|gh_next_unstable_oauth_client_secret|gh_oauth_client_secret|gpg_private_key|gpg_passphrase|gpg_secret_keys|heroku_api_key|okta_client_token|pypi_password|sonatype_nexus_password|travis_token|refresh_token|client_id|client_secret)(.*)?[(:=](\s)?['\"][0-9a-zA-Z-_!$^%=]{10,120}['\")]'''
+    regex = '''(?i)(apikey|certificate_osx_p12|certificate_password|client_id|client_secret|codacy_project_token|coveralls_api_token|coveralls_repo_token|coveralls_token|coverity_scan_token|cypress_record_key|database_password|db_password|deploy_password|deploy_token|digitalocean_access_token|docker_hub_password|docker_password|dockerhub_password|firebase_api_token|firebase_token|firefox_secret|flask_secret_key|fossa_api_key|gcloud_service_key|gcr_password|gh_api_key|gh_next_oauth_client_secret|gh_next_unstable_oauth_client_secret|gh_oauth_client_secret|gpg_passphrase|gpg_private_key|gpg_secret_keys|heroku_api_key|okta_client_token|password|pypi_password|refresh_token|secret|sonatype_nexus_password|sonatype_password|travis_token)(.*)?[(:=](\s)?[\"][0-9a-zA-Z-_!$^%=]{7,120}[\")]'''
     tags = ["key", "env"]
-    [[rules.entropies]]
-        Min = "4.2"
-        Max = "7.0"
+    entropy = 4.2
     [rules.allowlist]
         description = "ignore default"
         regexes = [
             '''(?i)(expect|assert|yourpassword|foo|bar)''',
-            '''(.*)# scan:ignore''',
+            '''(.*?)# scan:ignore''',
         ]
 
 [[rules]]
     description = "Potential bash var"
-    regex='''(?i)(=)([0-9a-zA-Z-_!{}=]{4,120})'''
+    regex='''(?i)(=)([0-9a-zA-Z-_!{}=]{7,120})'''
     tags = ["key", "bash", "API", "generic"]
-    [[rules.Entropies]]
-        Min = "3.5"
-        Max = "4.5"
-        Group = "1"
+    entropy = 3.8
+    secretGroup = 2
     [rules.allowlist]
         description = "ignore default"
-        regexes = [
-            '''(.*)# scan:ignore''',
-        ]
+        regexes = ['''(.*?)(# scan:ignore)''']
 
 [[rules]]
     description = "Generic Credential"
-    regex = '''(?i)(dbpasswd|dbuser|dbname|dbhost|api_key|apikey|secret|key|api|password|user|guid|hostname|pw|auth)(.{0,20})?['|"]([0-9a-zA-Z-_\/+!{}/=]{4,120})['|"]'''
+    regex = '''(?i)(apikey|auth|dbhost|dbname|dbpasswd|dbuser|guid|hostname|key|password|pw|user)(.{0,20})?[\"]([0-9a-zA-Z-._{}$\/\+/=!@#$%^&*]{7,120})[\"]'''
+    entropy = 4.2
     tags = ["key", "API", "generic"]
-    #ignore some false positive leaks
     [rules.allowlist]
         description = "ignore default"
         regexes = [
-            '''(.*)# scan:ignore''',
+            '''(.*?)# scan:ignore''',
+            '''(.*?)AUTHOR=''',
+            '''allAuthenticatedUsers''',
+            '''keys\((.*?)''',
+            '''key(}?)(.*?)''',
+        ]
+        paths = [
+            '''(.*?)credscan-config.toml$''',
         ]
 
 #--------------- Files ---------------
 [[rules]]
     description = "Files with keys and credentials"
-    file = '''(?i)(id_rsa|passwd|id_rsa.pub|pgpass|pem|ppk|key|shadow)'''
+    path = '''(.*?)(_unencrypted|id_rsa|id_rsa.pub|key|passwd|pem|pgpass|ppk|shadow)$'''
+    #               ^^ _unencrypted: sops implementation
+    tags = ["key", "sops"]
+
+#------- Unencrypted sops secrets files ------
+[[rules]]
+    description = "SOPS config"
+    #regex = '''.*'''
+    path = '''(.*?)config.enc.yaml$'''
+    regex = '''^([^A]|A(A|E(A|S(A|2(A|5(A|6(A|_(A|G(A|CA))))))))*([^AE]|E([^AS]|S([^2A]|2([^5A]|5([^6A]|6([^A_]|_([^AG]|G([^AC]|C[^AM])))))))))*(A(A|E(A|S(A|2(A|5(A|6(A|_(A|G(A|CA))))))))*(E(S?|S2(5?|56(_?|_GC?))))?)?$|^([^E]|E(E|NE)*([^EN]|N[^CE]))*(E(E|NE)*N?)?$'''
+    # Built from 2 blocks generated using http://www.formauri.es/personal/pgimeno/misc/non-match-regex/
+    # <block negating AES256_GCM see http://www.formauri.es/personal/pgimeno/misc/non-match-regex/?word=AES256_GCM>|<block negating ENC, see http://www.formauri.es/personal/pgimeno/misc/non-match-regex/?word=ENC>
+    # Explanation: !(AES256_GCM AND ENC) <=> (!AES256_GCM) OR (!ENC)
+    # Why all this? Because the go regex implementation does not support lookaheads/lookbehinds.
+    tags = ["sops"]
 
 #--------------- Entropy ---------------
 [[rules]]
     description = "entropy and regex"
-    regex = '''['|"]([0-9a-zA-Z-._{}$\/\+=]{20,120})['|"]'''
+    regex = '''([:][" "]+?|[\"])([0-9a-zA-Z-._{}$\/\+/=!@#$%^&*]{7,120})[\"]?'''
     tags = ["entropy"]
-    [[rules.Entropies]]
-        Min = "5.5"
-        Max = "6.3"
-        Group = "1"
+    entropy = 4.2
+    secretGroup = 1
     [rules.allowlist]
         description = "ignore default"
         regexes = [
-            '''(.*)# scan:ignore''',
+            '''(.*?)# scan:ignore''',
+        ]
+        paths = [
+            '''(.*?).sops.yaml$''',
+            '''(.*?)config.enc.yaml$''',
         ]
 
 #--------------- Global Allow Section ---------------
 [allowlist]
     description = "image allowlists"
-    files = ['''(.*?)(jpg|gif|doc|pdf|bin)$''']
+    paths = [
+        '''(.*?)(jpg|png|gif|doc|pdf)$''',
+        '''(.*?)(.history)(.*?)$''',
+    ]
+    regexes = ['''(.*?)# scan:ignore''']

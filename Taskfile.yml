@@ -1,0 +1,91 @@
+# https://taskfile.dev
+# A modern replacement of Makefile
+version: '3'
+
+includes:
+  docker:
+    taskfile: ./.builder/docker/Taskfile.yml
+    dir: ./.builder/docker
+    optional: true
+
+vars:
+  REPO_ABS_ROOT_PATH:
+    sh: git rev-parse --show-toplevel
+
+silent: true
+
+tasks:
+  default:
+    cmds:
+    - echo "📒 {{.TASK}}"
+    - task --list
+
+  debug:
+    desc: Run all debug tasks
+    cmds:
+    - echo "📒 {{.TASK}}"
+    - task: debug:resolve_vars
+
+  debug:resolve_vars:
+    desc: Output few things which can help debugging
+    cmds:
+    - echo "📒 {{.TASK}}"
+    - echo "Absolute path":" {{.REPO_ABS_ROOT_PATH}}"
+
+  security:
+    desc: Run all security scanners
+    run: once
+    cmds:
+    - echo "📒 {{.TASK}}"
+    - if [[ "{{.CLI_ARGS}}" == *"sarif"* ]]; then mkdir -p sarif-reports; fi
+    - task: security:filesystem:grype
+    - task: security:secret:gitleaks
+
+  security:filesystem:grype:
+    desc: Run Grype (Filesystem Vulnerability Scanner)
+    cmds:
+    - echo "📒 {{.TASK}}"
+    - plugin_name="grype"; asdf plugin add "${plugin_name}" || true; asdf install "${plugin_name}" $(asdf current "${plugin_name}" | tr -s ' ' | cut -d' ' -f2)
+    - grype "dir:." --output table --config .security/grype.yaml
+
+  # Remove the --no-git flag if you want gitleaks to make a deep scan on the entire history of the repo
+  security:secret:gitleaks:
+    desc: Run Gitleaks
+    cmds:
+    - echo "📒 {{.TASK}}"
+    - |
+      [[ "${GITHUB_ACTIONS}" == 'true' ]] && redact="--redact"
+      if [[ "{{.CLI_ARGS}}" == *"sarif"* ]]; then
+        docker run --rm --volume "{{.REPO_ABS_ROOT_PATH}}:/work" zricethezav/gitleaks:latest detect --no-git --exit-code 1 -v ${redact} --report-format "sarif" --report-path "sarif-reports/gitleaks-report.sarif" --source="/work" --config /work/.security/credscan-config.toml
+      else
+        docker run --rm --volume "{{.REPO_ABS_ROOT_PATH}}:/work" zricethezav/gitleaks:latest detect --no-git --exit-code 1 -v ${redact} --source="/work" --config /work/.security/credscan-config.toml
+      fi
+
+  lint:
+    desc: Run all linters
+    run: once
+    cmds:
+    - echo "📒 {{.TASK}}"
+    - task: lint:markdown:markdownlint
+    - task: lint:gha:actionlint
+    - task: lint:yaml:yamllint
+
+  lint:markdown:markdownlint:
+    desc: Lint Markdown files
+    cmds:
+    - echo "📒 {{.TASK}}"
+    - docker run --rm --volume "{{.REPO_ABS_ROOT_PATH}}:/work" tmknom/markdownlint:latest --config .linters/markdown-linter.yml --ignore CHANGELOG.md --ignore tests/ .
+
+  lint:gha:actionlint:
+    desc: Lint GitHub Action workflows
+    cmds:
+    - echo "📒 {{.TASK}}"
+    - asdf plugin add actionlint https://github.com/crazy-matt/asdf-actionlint.git || true; asdf install actionlint $(asdf current actionlint | tr -s ' ' | cut -d' ' -f2)
+    # - plugin_name="actionlint"; asdf plugin add "${plugin_name}" || true; asdf install "${plugin_name}" $(asdf current "${plugin_name}" | tr -s ' ' | cut -d' ' -f2)
+    - actionlint -shellcheck= .github/workflows/*
+
+  lint:yaml:yamllint:
+    desc: Lint YAML files
+    cmds:
+    - echo "📒 {{.TASK}}"
+    - docker run --rm --volume "{{.REPO_ABS_ROOT_PATH}}:/work" tmknom/yamllint:latest --config-file .linters/yaml-linter.yml .

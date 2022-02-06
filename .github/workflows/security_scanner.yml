@@ -1,126 +1,72 @@
-name: "Security Scanner"
-
+name: 'Scan'
 
 on:
   pull_request:
   push:
 
-
 defaults:
   run:
     shell: bash
 
-
-env:
-  scan_depth: 1
-
-
 jobs:
-
-  gitleaks:
-    name: "Secrets Leaks Detection"
+  vulnerability:
+    name: "Vulnerability"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+      - name: 'Cache Grype Database'
+        uses: actions/cache@v2
         with:
-          # Using a fetch-depth of '0' clones the entire history.
-          # If you want to do a faster clone, use '2', but that is not guaranteed to work with pull requests
-          fetch-depth: ${{ env.scan_depth }}
+          path: |
+            ~/grype-cache
+          key: grype
       - name: "Set Job Vars"
-        id: set_vars
+        id: vars
         run: |
+          echo "::set-output name=task_version::$(cat .tool-versions | grep -w task | cut -d ' ' -f2)"
           if [[ ${{ github.event_name }} == 'push' && ${{ github.ref }} == "refs/heads/${{ github.event.repository.default_branch }}" ]]; then
             echo "::set-output name=commmit_info:: [Push on Main]"
           fi
-      - name: "Run GitLeaks scan"
-        uses: zricethezav/gitleaks-action@v1.6.0
+      - name: 'Install asdf dependencies'
+        uses: asdf-vm/actions/setup@v1
+      - name: 'Install Task'
+        uses: arduino/setup-task@v1
         with:
-          config-path: .security/credscan-config.toml
-      - name: "Trigger the Notifier"
-        if: failure()
-        continue-on-error: true
-        uses: peter-evans/repository-dispatch@v1.1.3
-        with:
-          token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
-          event-type: slack-notification
-          client-payload: '{ "type": "alert", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#FF0000", "title": "${{ github.repository }} Secret Leak Analysis${{ steps.set_vars.outputs.commmit_info }}", "message": "🚨 Secret exposed.\n\nCheck https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" }'
-
-
-  sast_scanner:
-    name: "SAST Vulnerability Scanner"
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.sarif_reports_matrix.outputs.matrix }}
-      defect: ${{ steps.sarif_reports_matrix.outputs.defect }}
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: ${{ env.scan_depth }}
-      - name: "Set Job Vars"
-        id: set_vars
+          version: ${{ steps.vars.outputs.task_version }}
+      - name: 'Scan for Vulnerabilities'
+        id: scan
         run: |
-          if [[ ${{ github.event_name }} == 'push' && ${{ github.ref }} == "refs/heads/${{ github.event.repository.default_branch }}" ]]; then
-            echo "::set-output name=commmit_info:: [Push on Main]"
-          fi
-      - name: "SAST: ShiftLeftScan.io Scan"
-        id: shiftleft_scan
-        uses: ShiftLeftSecurity/scan-action@v1.3.0
-        with:
-          output: .security/sast-reports
+          task security -- sarif
+          task docker:security -- sarif
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SAST_SCAN_SRC_DIR: ${{ github.workspace }}/.security
-          TOOLS_CONFIG_DIR: ${{ github.workspace }}/.security
-          #SCAN_DEBUG_MODE: debug
-      - name: "Build the report matrix and report defect"
-        id: sarif_reports_matrix
-        run: |
-          echo " ===> Building the matrix of available SARIF reports:"
-          # yamllint disable
-          json_array="{ \"include\":$(ls .security/sast-reports/*.sarif | jq -s -R -c 'split("\n") | to_entries | map( {"report_name": (.value |= (sub("^.security/sast-reports/"; ""))).value, "report_path": (.value)} )'[:-1])}"
-          # yamllint enable
-          echo "$json_array"
-          echo "::set-output name=matrix::$json_array"
-          if [[ ! -f ".security/sast-reports/ngsast-report.findings.json" ]] || \
-            [[ -z "$(cat ".security/sast-reports/ngsast-report.findings.json" | jq '.findings[]')" ]]; then
-              echo "::set-output name=defect::false"
-          else
-            echo "::set-output name=defect::true"
-          fi
-      - name: "Upload ShiftLeft Scan Reports as Artifacts"
-        if: steps.sarif_reports_matrix.outputs.defect == 'true'
-        uses: actions/upload-artifact@v2.2.4
-        with:
-          name: SAST-Reports
-          path: .security/sast-reports
-          retention-days: 90
-      - name: "Trigger the Notifier"
-        if: steps.sarif_reports_matrix.outputs.defect == 'true'
+          GRYPE_DB_CACHE_DIR: ~/grype-cache
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: 'Upload SARIF reports'
+        if: always()
         continue-on-error: true
+        uses: github/codeql-action/upload-sarif@v1.0.31
+        with:
+          sarif_file: ./sarif-reports
+      - name: 'Dedicated Grype scan for SARIF report creation'
+        id: scan_grype
+        uses: anchore/scan-action@v3.2.0
+        with:
+          path: './'
+          fail-build: true
+          acs-report-enable: true
+        env:
+          GRYPE_DB_CACHE_DIR: ~/grype-cache
+      - name: 'Upload SARIF Grype reports'
+        if: always()
+        continue-on-error: true
+        uses: github/codeql-action/upload-sarif@v1.0.31
+        with:
+          sarif_file: ${{ steps.scan_grype.outputs.sarif }}
+      - name: 'Notify if any finding'
+        if: always() && (steps.scan.outcome != 'success' || steps.scan_grype.outcome != 'success')
         uses: peter-evans/repository-dispatch@v1.1.3
         with:
           token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
           event-type: slack-notification
-          client-payload: '{ "type": "alert", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#FF0000", "title": "${{ github.repository }} SAST${{ steps.baseline_prep.outputs.commit_info }}", "message": "🚨 Vulnerabilty discovered.\n\nCheck https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" }'
-
-
-  sarif_reports_uploader:
-    name: "SAST SARIF Reports Uploader"
-    runs-on: ubuntu-latest
-    needs: [sast_scanner]
-    if: needs.sast_scanner.outputs.defect == 'true'
-    strategy:
-      fail-fast: true
-      matrix: ${{ fromJson(needs.sast_scanner.outputs.matrix) }}
-    steps:
-      - uses: actions/checkout@v2
-      - name: "Retrieve SARIF Reports"
-        uses: actions/download-artifact@v2.0.10
-        with:
-          name: SAST-Reports
-          path: .security/sast-reports
-      - name: "Upload ${{ matrix.report_name }} to GitHub"
-        continue-on-error: true
-        uses: github/codeql-action/upload-sarif@v1.0.15
-        with:
-          sarif_file: ${{ matrix.report_path }}
+          client-payload: '{ "type": "alert", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#FF0000", "title": "🚨 ${{ github.repository }} Vulnerability${{ steps.vars.outputs.commmit_info }}", "message": "Check https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" }'
