@@ -234,7 +234,9 @@ print('hello world')
 
 Run: `SKIP=<your hook id in .pre-commit-config.yaml> git push`
 
-For example this command ignores 2 hooks: `SKIP=check-merge-conflict,mixed-line-ending git push`
+For example this command ignores 2 hooks: `SKIP="check-merge-conflict,mixed-line-ending" git push`
+
+If you want to use a permanent skip, just configure the SKIP variable as an environment one using one of your dotfiles.
 
 ### You would like to bypass all hooks for your push
 
