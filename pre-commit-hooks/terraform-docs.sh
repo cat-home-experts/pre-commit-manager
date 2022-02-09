@@ -2,8 +2,8 @@
 set -e
 
 main() {
-  if [[ -z "$(command -v asdf)" ]]; then
-    echo "You should install terraform-docs first to be able to use its hook."
+  if [[ -z "$(command -v terraform-docs)" ]]; then
+    echo "You should install 'terraform-docs' first to be able to use its hook."
     exit 1
   else
     _initialize
@@ -165,6 +165,6 @@ declare -a ENVS
 declare -a FOLDERS
 declare -a EXCLUDED_PATHS
 declare -a FILES
-DEBUG=true
+DEBUG=false
 
 [[ ${BASH_SOURCE[0]} != "$0" ]] || main "$@"
