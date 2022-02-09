@@ -28,10 +28,11 @@ This Pre-Commit Manager does everything for you using the baseline configuration
     - [Baseline Configuration Update](#baseline-configuration-update)
     - [How to Develop your Own Hook?](#how-to-develop-your-own-hook)
   - [Some little tricks](#some-little-tricks)
-    - [You want to run your hooks](#you-want-to-run-your-hooks)
+    - [You want to setup a different pre-commit config file](#you-want-to-setup-a-different-pre-commit-config-file)
+    - [You want to run your hooks without calling git](#you-want-to-run-your-hooks-without-calling-git)
     - [You want to push a secret intentionally](#you-want-to-push-a-secret-intentionally)
-    - [You would like to bypass a hook for a specific push](#you-would-like-to-bypass-a-hook-for-a-specific-push)
-    - [You would like to bypass all hooks for your push](#you-would-like-to-bypass-all-hooks-for-your-push)
+    - [You would like to bypass a hook](#you-would-like-to-bypass-a-hook)
+    - [You would like to bypass all hooks](#you-would-like-to-bypass-all-hooks)
   - [Other Hooks](#other-hooks)
 
 </details>
@@ -214,7 +215,13 @@ You're more than welcome to extend the set of hooks offered by Pre-Commit Manage
 
 ## Some little tricks
 
-### You want to run your hooks
+### You want to setup a different pre-commit config file
+
+By default Pre-Commit Manager will deploy the baseline config as `.pre-commit-config.yaml` under your repo root directory, unless you specify a different file name using the environment variable `$PRECOMMIT_CUSTOM` prior to run the installation script (see [Quickstart](#quickstart)).
+
+But you can also, per repo basis, run the following command under your repo root directory: `pre-commit install --config my-personal-config.yaml`.
+
+### You want to run your hooks without calling git
 
 Run all the hooks on your repository: `pre-commit run --all-files`.
 
@@ -233,7 +240,7 @@ API_KEY = "actually-not-a-secret" # scan:ignore
 print('hello world')
 ```
 
-### You would like to bypass a hook for a specific push
+### You would like to bypass a hook
 
 Run: `SKIP=<your hook id in .pre-commit-config.yaml> git push`.
 
@@ -241,7 +248,7 @@ For example this command ignores 2 hooks: `SKIP="check-merge-conflict,mixed-line
 
 If you want to use a permanent skip, just configure the SKIP variable as an environment one using one of your dotfiles.
 
-### You would like to bypass all hooks for your push
+### You would like to bypass all hooks
 
 Run: `git push --no-verify`.
 

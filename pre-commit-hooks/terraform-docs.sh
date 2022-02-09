@@ -6,7 +6,7 @@ main() {
   _parse_cmdline "$@"
 
   if [[ -z "$(command -v terraform-docs)" ]]; then
-    echo "You should install 'terraform-docs' first to be able to use its hook."
+    echo "\033[1;37m\033[41mYou should install 'terraform-docs' first to be able to use its hook.\033[0m"
     exit 0
   fi
 

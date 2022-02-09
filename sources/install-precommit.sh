@@ -142,8 +142,8 @@ for repo in ${repo_list}; do
   ((dynamic_total_count+=1))
   echo -e "\033[1;32m[✓]\033[0m repo \033[1;34m${repo_path}\033[0m"
 
-  if [[ -f "${repo_path}/.pre-commit-config.yaml" ]]; then
-    current_config_byte_count=$(cat "${repo_path}/.pre-commit-config.yaml" | sort -u | wc -c)
+  if [[ -f "${repo_path}/${local_precommit_config_file}" ]]; then
+    current_config_byte_count=$(cat "${repo_path}/${local_precommit_config_file}" | sort -u | wc -c)
   else
     unset current_config_byte_count
   fi
@@ -151,8 +151,8 @@ for repo in ${repo_list}; do
   # Baseline config deployed if no config exists or if the config in repo matches exactly the release just before.
   # In that former case, we push the upgrade, because if the config has not been updated manually,
   # then the user is potentially interested in staying in a "managed" mode
-  if [[ ! -f "${repo_path}/.pre-commit-config.yaml" ]] || [[ ${current_config_byte_count} == "${previous_config_byte_count}" ]]; then
-    cp -f "${installer_location}/repository/${baseline_precommit_config_file}" "${repo_path}/.pre-commit-config.yaml"
+  if [[ ! -f "${repo_path}/${local_precommit_config_file}" ]] || [[ ${current_config_byte_count} == "${previous_config_byte_count}" ]]; then
+    cp -f "${installer_location}/repository/${baseline_precommit_config_file}" "${repo_path}/${local_precommit_config_file}"
     echo -e "   * pre-commit manager baseline config deployed..."
     change=true
   else
