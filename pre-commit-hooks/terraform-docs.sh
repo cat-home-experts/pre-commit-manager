@@ -4,6 +4,7 @@ set -e
 main() {
   if [[ -z "$(command -v asdf)" ]]; then
     echo "You should install terraform-docs first to be able to use its hook."
+    exit 1
   else
     _initialize
     _parse_cmdline "$@"
