@@ -2,23 +2,23 @@
 set -e
 
 main() {
+  _initialize
+  _parse_cmdline "$@"
+
   if [[ -z "$(command -v terraform-docs)" ]]; then
     echo "You should install 'terraform-docs' first to be able to use its hook."
     exit 1
-  else
-    _initialize
-    _parse_cmdline "$@"
-
-    if [ "$DEBUG" == "true" ]; then
-      echo "Inputs: $*"
-      echo "var ARGS: ${ARGS[*]}"
-      echo "var ENVS: ${ENVS[*]}"
-      echo "var FOLDERS: ${FOLDERS[*]}"
-      echo "var EXCLUDED_PATHS: ${EXCLUDED_PATHS[*]}"
-    fi
-
-    _run_hook
   fi
+
+  if [ "$DEBUG" == "true" ]; then
+    echo "Inputs: $*"
+    echo "var ARGS: ${ARGS[*]}"
+    echo "var ENVS: ${ENVS[*]}"
+    echo "var FOLDERS: ${FOLDERS[*]}"
+    echo "var EXCLUDED_PATHS: ${EXCLUDED_PATHS[*]}"
+  fi
+
+  _run_hook
 }
 
 _run_hook() {
