@@ -7,7 +7,7 @@ main() {
 
   if [[ -z "$(command -v terraform-docs)" ]]; then
     echo "You should install 'terraform-docs' first to be able to use its hook."
-    exit 1
+    exit 0
   fi
 
   if [ "$DEBUG" == "true" ]; then
