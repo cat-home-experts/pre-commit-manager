@@ -8,18 +8,33 @@ cronjob_frequency_mins=${PRECOMMIT_UPDATE_FREQUENCY_MINS:-20}
 
 
 python --version 2>/dev/null || true
-python3 --version 2>/dev/null || true
 if npm --version >/dev/null 2>&1; then echo "Npm $(npm --version)"; fi
 
-if python -m pip install pre-commit 2>/dev/null || python3 -m pip install pre-commit 2>/dev/null || npm install -g pre-commit 2>/dev/null; then
-  if pre-commit --version 2>/dev/null; then
-    echo -e "\033[1;32m[✓]\033[0m pre-commit framework binaries installed"
-  else
-    echo -e "\033[1;37m\033[41mpre-commit installed but probably not in your PATH.\033[0m"
-    exit 1
-  fi
+if [[ -n "$(command -v asdf)" ]]; then
+  asdf plugin add https://github.com/comdotlinux/asdf-pre-commit.git
+  asdf install pre-commit latest
+  asdf global pre-commit latest
+elif [[ -n "$(command -v python)" ]]; then
+  python -m pip install pre-commit
+  python_installed=true
+elif [[ -n "$(command -v npm)" ]]; then
+  npm install -g pre-commit
 else
   echo -e "\033[1;37m\033[41mNo relevant package manager found. You need to install python+pip or npm.\033[0m"
+  exit 1
+fi
+
+if pre-commit --version 2>/dev/null; then
+  echo -e "\033[1;32m[✓]\033[0m pre-commit framework binaries installed"
+else
+  if [[ "${python_installed}" == "true" ]]; then
+    # Retry mechanism
+    python -m pip install --upgrade pip
+    echo "Try to install pre-commit again after a pip upgrade..."
+    python -m pip install pre-commit
+  fi
+  if ! pre-commit --version 2>/dev/null; then
+  echo -e "\033[1;37m\033[41mpre-commit probably installed but not in your PATH.\033[0m"
   exit 1
 fi
 
