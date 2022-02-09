@@ -165,6 +165,6 @@ declare -a ENVS
 declare -a FOLDERS
 declare -a EXCLUDED_PATHS
 declare -a FILES
-DEBUG=false
+DEBUG=true
 
 [[ ${BASH_SOURCE[0]} != "$0" ]] || main "$@"
