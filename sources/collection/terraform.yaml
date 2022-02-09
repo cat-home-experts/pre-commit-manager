@@ -6,7 +6,7 @@ repos:
   rev: v0.7.2
   hooks:
   - id: shellcheck
-    args: ['--severity=warning'] # Only show errors and warnings
+    args: ['--severity=warning']  # Only show errors and warnings
 
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v4.0.1
@@ -31,27 +31,32 @@ repos:
   - id: terragrunt-fmt
     files: 'folders/.*(.hcl)'
     exclude: '(.terragrunt-cache/|.terraform/|.terraform.lock)'
-    args: ['--arg','--terragrunt-check'] # for identifying but not fixing automatically the linting issues
+    args: ['--arg','--terragrunt-check']  # for identifying but not fixing automatically the linting issues
     stages: [commit]
+    verbose: true  # only used to warn when the required binary is not installed
   - id: terragrunt-validate
     files: 'folders/.*(.hcl)'
     exclude: '(.terragrunt-cache/|.terraform/|.terraform.lock)'
-    args: ['--exclude-path', 'folders/development/dashboard'] # if you want to exclude any specific folder and its children
+    args: ['--exclude-path', 'folders/development/dashboard']  # if you want to exclude any specific folder and its children
     stages: [commit]
+    verbose: true
   - id: terraform-fmt
     files: '.*(.tf|.tfvars)'
     exclude: '(.terragrunt-cache/|.terraform/|.terraform.lock|examples/)'
-    args: ['--arg', '-write=false -check'] # for identifying but not fixing automatically the linting issues
+    args: ['--arg', '-write=false -check']  # for identifying but not fixing automatically the linting issues
     stages: [commit]
+    verbose: true
   - id: terraform-validate
     files: '.*(.tf|.tfvars)'
     exclude: '(.terragrunt-cache/|.terraform/|.terraform.lock|examples/)'
-    args: ['--exclude-path', 'folders/development/dashboard'] # if you want to exclude any specific folder and its children
+    args: ['--exclude-path', 'folders/development/dashboard']  # if you want to exclude any specific folder and its children
     stages: [commit]
+    verbose: true
   - id: terraform-docs
     files: '.*(.tf|.tfvars)'
     exclude: '(.terragrunt-cache/|.terraform/|.terraform.lock|examples/)'
     stages: [commit]
+    verbose: true  # only used to warn when the required binary is not installed
 
 - repo: https://github.com/bridgecrewio/checkov.git
   rev: '2.0.399'

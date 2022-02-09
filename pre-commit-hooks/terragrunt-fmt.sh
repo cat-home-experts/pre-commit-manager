@@ -5,6 +5,11 @@ main() {
   _initialize
   _parse_cmdline "$@"
 
+  if [[ -z "$(command -v terragrunt)" ]]; then
+    echo "You should install 'terragrunt' first to be able to use its hook."
+    exit 0
+  fi
+
   if [ "$DEBUG" == "true" ]; then
     echo "Inputs: $*"
     echo "var ARGS: ${ARGS[*]}"

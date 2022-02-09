@@ -58,8 +58,8 @@ precommit_manager_url="${precommit_manager_url}"
 WITH_INTERPOLATION
 
 cat >> "${installer_location}/deploy_hooks.sh" <<'WITHOUT_INTERPOLATION'
-baseline_precommit_config_file=${PRECOMMIT_BASELINE:-"sources/baseline.yaml"}
-
+baseline_precommit_config_file="${PRECOMMIT_BASELINE:-"sources/baseline.yaml"}"  # that's the one being downloaded to init a config
+local_precommit_config_file="${PRECOMMIT_CUSTOM:-".pre-commit-config.yaml"}"  # that's the name the baseline config is created with
 
 if [[ ! -d "${installer_location}/repository" ]]; then
   git clone -n "${precommit_manager_url}" --depth 1 "${installer_location}/repository"
@@ -163,7 +163,7 @@ for repo in ${repo_list}; do
   if [[ ! -f "${repo_path}/.git/hooks/commit-msg" || ! -f "${repo_path}/.git/hooks/pre-commit" || ! -f "${repo_path}/.git/hooks/pre-push" ]]; then
     cd "${repo_path}"
     git config --unset-all core.hooksPath && echo -e "   * Reset of the git core.hooksPath variable..."
-    printf '%s\n' "   * $(pre-commit install)"
+    printf '%s\n' "   * $(pre-commit install --config "${local_precommit_config_file}")"
     printf '%s\n' "   * $(pre-commit install --hook-type pre-push)"
     printf '%s\n' "   * $(pre-commit install --hook-type commit-msg)"
     printf '%s\n' "   * $(pre-commit autoupdate)"
