@@ -34,8 +34,9 @@ else
     python -m pip install pre-commit
   fi
   if ! pre-commit --version 2>/dev/null; then
-  echo -e "\033[1;37m\033[41mpre-commit probably installed but not in your PATH.\033[0m"
-  exit 1
+    echo -e "\033[1;37m\033[41mpre-commit probably installed but not in your PATH.\033[0m"
+    exit 1
+  fi
 fi
 
 mkdir -p "${installer_location}"
