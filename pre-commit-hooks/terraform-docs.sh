@@ -2,18 +2,22 @@
 set -e
 
 main() {
-  _initialize
-  _parse_cmdline "$@"
+  if [[ -z "$(command -v asdf)" ]]; then
+    echo "You should install terraform-docs first to be able to use its hook."
+  else
+    _initialize
+    _parse_cmdline "$@"
 
-  if [ "$DEBUG" == "true" ]; then
-    echo "Inputs: $*"
-    echo "var ARGS: ${ARGS[*]}"
-    echo "var ENVS: ${ENVS[*]}"
-    echo "var FOLDERS: ${FOLDERS[*]}"
-    echo "var EXCLUDED_PATHS: ${EXCLUDED_PATHS[*]}"
+    if [ "$DEBUG" == "true" ]; then
+      echo "Inputs: $*"
+      echo "var ARGS: ${ARGS[*]}"
+      echo "var ENVS: ${ENVS[*]}"
+      echo "var FOLDERS: ${FOLDERS[*]}"
+      echo "var EXCLUDED_PATHS: ${EXCLUDED_PATHS[*]}"
+    fi
+
+    _run_hook
   fi
-
-  _run_hook
 }
 
 _run_hook() {
@@ -140,6 +144,7 @@ _initialize() {
   local dir
   local source
   source="${BASH_SOURCE[0]}"
+
   while [[ -L $source ]]; do # resolve $source until the file is no longer a symlink
     dir="$(cd -P "$(dirname "$source")" > /dev/null && pwd)"
     source="$(readlink "$source")"
