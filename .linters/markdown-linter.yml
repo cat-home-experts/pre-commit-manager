@@ -1,20 +1,10 @@
 # see https://github.com/DavidAnson/markdownlint#optionsconfig
 # & https://github.com/DavidAnson/markdownlint/blob/main/schema/.markdownlint.yaml
 
-# Default state for all rules
-default: true
-
-# MD013/line-length - Line length
-MD013: false
-
-# MD034/no-bare-urls - Bare URL used
-MD034: false
-
-# MD040/fenced-code-language - Fenced code blocks should have a language specified
-MD040: false
-
-# MD041/first-line-heading/first-line-h1 - First line in a file should be a top-level heading
-MD041: false
-
-# MD045/no-alt-text - Images should have alternate text (alt text)
-MD045: false
+default: true  # Default state for all rules
+MD013: false  # MD013/line-length - Line length
+MD033: false  # MD033/no-inline-html Inline HTML
+MD034: false  # MD034/no-bare-urls - Bare URL used
+MD040: false  # MD040/fenced-code-language - Fenced code blocks should have a language specified
+MD041: false  # MD041/first-line-heading/first-line-h1 - First line in a file should be a top-level heading
+MD045: false  # MD045/no-alt-text - Images should have alternate text (alt text)
