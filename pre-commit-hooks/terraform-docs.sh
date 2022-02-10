@@ -5,6 +5,11 @@ main() {
   _initialize
   _parse_cmdline "$@"
 
+  if [[ -z "$(command -v terraform-docs)" ]]; then
+    echo "\033[1;37m\033[41mYou should install 'terraform-docs' first to be able to use its hook.\033[0m"
+    exit 0
+  fi
+
   if [ "$DEBUG" == "true" ]; then
     echo "Inputs: $*"
     echo "var ARGS: ${ARGS[*]}"
@@ -140,6 +145,7 @@ _initialize() {
   local dir
   local source
   source="${BASH_SOURCE[0]}"
+
   while [[ -L $source ]]; do # resolve $source until the file is no longer a symlink
     dir="$(cd -P "$(dirname "$source")" > /dev/null && pwd)"
     source="$(readlink "$source")"

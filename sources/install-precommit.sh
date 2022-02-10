@@ -8,19 +8,35 @@ cronjob_frequency_mins=${PRECOMMIT_UPDATE_FREQUENCY_MINS:-20}
 
 
 python --version 2>/dev/null || true
-python3 --version 2>/dev/null || true
 if npm --version >/dev/null 2>&1; then echo "Npm $(npm --version)"; fi
 
-if python -m pip install pre-commit 2>/dev/null || python3 -m pip install pre-commit 2>/dev/null || npm install -g pre-commit 2>/dev/null; then
-  if pre-commit --version 2>/dev/null; then
-    echo -e "\033[1;32m[✓]\033[0m pre-commit framework binaries installed"
-  else
-    echo -e "\033[1;37m\033[41mpre-commit installed but probably not in your PATH.\033[0m"
-    exit 1
-  fi
+if [[ -n "$(command -v asdf)" ]]; then
+  asdf plugin add https://github.com/comdotlinux/asdf-pre-commit.git
+  asdf install pre-commit latest
+  asdf global pre-commit latest
+elif [[ -n "$(command -v python)" ]]; then
+  python -m pip install pre-commit
+  python_installed=true
+elif [[ -n "$(command -v npm)" ]]; then
+  npm install -g pre-commit
 else
   echo -e "\033[1;37m\033[41mNo relevant package manager found. You need to install python+pip or npm.\033[0m"
   exit 1
+fi
+
+if pre-commit --version 2>/dev/null; then
+  echo -e "\033[1;32m[✓]\033[0m pre-commit framework binaries installed"
+else
+  if [[ "${python_installed}" == "true" ]]; then
+    # Retry mechanism
+    python -m pip install --upgrade pip
+    echo "Try to install pre-commit again after a pip upgrade..."
+    python -m pip install pre-commit
+  fi
+  if ! pre-commit --version 2>/dev/null; then
+    echo -e "\033[1;37m\033[41mpre-commit probably installed but not in your PATH.\033[0m"
+    exit 1
+  fi
 fi
 
 mkdir -p "${installer_location}"
@@ -42,8 +58,8 @@ precommit_manager_url="${precommit_manager_url}"
 WITH_INTERPOLATION
 
 cat >> "${installer_location}/deploy_hooks.sh" <<'WITHOUT_INTERPOLATION'
-baseline_precommit_config_file=${PRECOMMIT_BASELINE:-"sources/baseline.yaml"}
-
+baseline_precommit_config_file="${PRECOMMIT_BASELINE:-"sources/baseline.yaml"}"  # that's the one being downloaded to init a config
+local_precommit_config_file="${PRECOMMIT_CUSTOM:-".pre-commit-config.yaml"}"  # that's the name the baseline config is created with
 
 if [[ ! -d "${installer_location}/repository" ]]; then
   git clone -n "${precommit_manager_url}" --depth 1 "${installer_location}/repository"
@@ -126,8 +142,8 @@ for repo in ${repo_list}; do
   ((dynamic_total_count+=1))
   echo -e "\033[1;32m[✓]\033[0m repo \033[1;34m${repo_path}\033[0m"
 
-  if [[ -f "${repo_path}/.pre-commit-config.yaml" ]]; then
-    current_config_byte_count=$(cat "${repo_path}/.pre-commit-config.yaml" | sort -u | wc -c)
+  if [[ -f "${repo_path}/${local_precommit_config_file}" ]]; then
+    current_config_byte_count=$(cat "${repo_path}/${local_precommit_config_file}" | sort -u | wc -c)
   else
     unset current_config_byte_count
   fi
@@ -135,8 +151,8 @@ for repo in ${repo_list}; do
   # Baseline config deployed if no config exists or if the config in repo matches exactly the release just before.
   # In that former case, we push the upgrade, because if the config has not been updated manually,
   # then the user is potentially interested in staying in a "managed" mode
-  if [[ ! -f "${repo_path}/.pre-commit-config.yaml" ]] || [[ ${current_config_byte_count} == "${previous_config_byte_count}" ]]; then
-    cp -f "${installer_location}/repository/${baseline_precommit_config_file}" "${repo_path}/.pre-commit-config.yaml"
+  if [[ ! -f "${repo_path}/${local_precommit_config_file}" ]] || [[ ${current_config_byte_count} == "${previous_config_byte_count}" ]]; then
+    cp -f "${installer_location}/repository/${baseline_precommit_config_file}" "${repo_path}/${local_precommit_config_file}"
     echo -e "   * pre-commit manager baseline config deployed..."
     change=true
   else
@@ -147,7 +163,7 @@ for repo in ${repo_list}; do
   if [[ ! -f "${repo_path}/.git/hooks/commit-msg" || ! -f "${repo_path}/.git/hooks/pre-commit" || ! -f "${repo_path}/.git/hooks/pre-push" ]]; then
     cd "${repo_path}"
     git config --unset-all core.hooksPath && echo -e "   * Reset of the git core.hooksPath variable..."
-    printf '%s\n' "   * $(pre-commit install)"
+    printf '%s\n' "   * $(pre-commit install --config "${local_precommit_config_file}")"
     printf '%s\n' "   * $(pre-commit install --hook-type pre-push)"
     printf '%s\n' "   * $(pre-commit install --hook-type commit-msg)"
     printf '%s\n' "   * $(pre-commit autoupdate)"
