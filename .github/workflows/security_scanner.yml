@@ -16,7 +16,7 @@ jobs:
       - name: 'Checkout'
         uses: actions/checkout@v2
       - name: 'Cache Grype Database'
-        uses: actions/cache@v2
+        uses: actions/cache@v3.0.1
         with:
           path: |
             ${{ runner.temp }}/.cache/grype
