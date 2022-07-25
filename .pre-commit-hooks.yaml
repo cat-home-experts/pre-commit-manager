@@ -48,3 +48,10 @@
   entry: pre-commit-hooks/terraform-docs.sh
   require_serial: true
   language: script
+
+- id: requirements-txt-fixer
+  name: fix requirements.txt
+  description: sorts entries in requirements.txt.
+  entry: requirements-txt-fixer
+  language: python
+  files: requirements.*\.txt$
