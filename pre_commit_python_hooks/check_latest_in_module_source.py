@@ -19,7 +19,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
             for index, line in enumerate(lines):
 
-                if "#ignore" in line:
+                if "# tf:ignore" in line:
                     continue
 
                 elif "source =" and "ref=latest" in line:
