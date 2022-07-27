@@ -48,3 +48,17 @@
   entry: pre-commit-hooks/terraform-docs.sh
   require_serial: true
   language: script
+
+- id: requirements-txt-fixer
+  name: fix requirements.txt
+  description: sorts entries in requirements.txt.
+  entry: requirements-txt-fixer
+  language: python
+  files: requirements.*\.txt$
+
+- id: tf-module-checker
+  name: check terraform modules for latest
+  description: Checks if latest is set on ref in terraform modules.
+  entry: tf-module-checker
+  language: python
+  files: .tf$
