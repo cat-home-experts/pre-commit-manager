@@ -62,3 +62,10 @@
   entry: tf-module-checker
   language: python
   files: .tf$
+
+- id: tf-provider-gen
+  name: generate provider tf 
+  description: Generate a provider file for terrform validate step.
+  entry: provider-gen
+  language: python
+  files: .tf$
