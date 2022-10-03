@@ -17,13 +17,15 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     for arg in args.filenames:
         folder = re.search("(.*/).*.tf", arg)
-        print(folder.group(1))
+        # print(folder.group(1))
         data = ""
         path = Path(os.getcwd())
-        rootpath = path.absolute
+        rootpath = str(path.absolute())
 
-        hclpath = re.search("(.*/gcp-terraform/).*", rootpath)
+        hclpath = re.search("(.*/gcp-terraform/?).*).*", rootpath)
+
         hcl = hclpath.group(1) + "folders/terragrunt.hcl"
+
         with open(hcl, "r+") as file:
             # lines = file.readlines()
             inRecordingMode = False
