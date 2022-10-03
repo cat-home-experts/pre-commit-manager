@@ -69,3 +69,10 @@
   entry: provider-gen
   language: python
   files: .tf$
+
+- id: tf-provider-cleanup
+  name: remove-provider
+  description: Cleanup up the provider file after terraform validation.
+  entry: provider-gen
+  language: python
+  files: .tf$
