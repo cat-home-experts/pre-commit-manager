@@ -1,6 +1,7 @@
 from __future__ import annotations
 import argparse
 import re
+from pathlib import Path
 
 PASS = 0
 FAIL = 1
@@ -17,7 +18,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         folder = re.search("(.*/).*.tf", arg)
         print(folder.group(1))
         data = ""
-        hcl = "../../terragrunt.hcl"
+        path = Path(os.getcwd())
+        rootpath = path.absolute
+
+        hclpath = re.search("(.*/gcp-terraform/).*", rootpath)
+        hcl = hclpath + "folders/terragrunt.hcl"
         with open(hcl, "r+") as file:
             # lines = file.readlines()
             inRecordingMode = False
