@@ -22,7 +22,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         path = Path(os.getcwd())
         rootpath = str(path.absolute())
 
-        hclpath = re.search("(.*/gcp-terraform/?).*).*", rootpath)
+        hclpath = re.search("(.*/gcp-terraform/?).*", rootpath)
 
         hcl = hclpath.group(1) + "folders/terragrunt.hcl"
 
