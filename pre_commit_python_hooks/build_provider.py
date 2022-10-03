@@ -23,7 +23,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         rootpath = path.absolute
 
         hclpath = re.search("(.*/gcp-terraform/).*", rootpath)
-        hcl = hclpath + "folders/terragrunt.hcl"
+        hcl = hclpath.group(1) + "folders/terragrunt.hcl"
         with open(hcl, "r+") as file:
             # lines = file.readlines()
             inRecordingMode = False
