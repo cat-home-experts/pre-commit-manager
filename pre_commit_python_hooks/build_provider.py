@@ -20,33 +20,33 @@ def main(argv: Sequence[str] | None = None) -> int:
         # print(folder.group(1))
         data = ""
         path = Path(os.getcwd())
-        rootpath = str(path.absolute())
+        root_path = str(path.absolute())
 
-        hclpath = re.search("(.*/gcp-terraform/?).*", rootpath)
+        hcl_path = re.search("(.*/gcp-terraform/?).*", root_path)
 
-        hcl = hclpath.group(1) + "/folders/terragrunt.hcl"
+        hcl = hcl_path.group(1) + "/folders/terragrunt.hcl"
 
         with open(hcl, "r+") as file:
             # lines = file.readlines()
-            inRecordingMode = False
+            in_recording_mode = False
             for line in file:
                 # print(line)
-                if not inRecordingMode:
+                if not in_recording_mode:
                     if line.startswith("    terraform {"):
 
                         data += line
 
-                        inRecordingMode = True
+                        in_recording_mode = True
                 elif line.startswith("  EOF"):
                     break
                     print(line)
-                    inRecordingMode = False
+                    in_recording_mode = False
                 else:
                     data += line
 
         print(data)
-        providerLocation = folder.group(1) + "provider.tf"
-        with open(providerLocation, "w+") as provider:
+        provider_location = folder.group(1) + "provider.tf"
+        with open(provider_location, "w+") as provider:
             provider.write(data)
         provider.close()
 
