@@ -2,6 +2,7 @@ from __future__ import annotations
 import argparse
 import re
 import os
+import pathlib
 
 
 PASS = 0
@@ -23,7 +24,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(providerLocation)
             print(ISSUE)
         else:
-            os.remove(providerLocation)
+            path = pathlib.Path(providerLocation)
+            path.unlink()
 
     if ISSUE != "":
         return FAIL
