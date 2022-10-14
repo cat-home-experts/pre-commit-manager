@@ -19,12 +19,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         folder = re.search("(.*/).*.tf", arg)
 
         tf_cache_location = folder.group(1) + ".terraform"
+        tf_lock = folder.group(1) + ".terraform.lock.hcl"
         if not os.path.isdir(tf_cache_location):
             ISSUE = "Failed"
             print(tf_cache_location)
             print(ISSUE)
         else:
             shutil.rmtree(tf_cache_location)
+            os.remove(tf_lock)
 
     if ISSUE != "":
         return FAIL
