@@ -18,14 +18,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     for arg in args.filenames:
         folder = re.search("(.*/).*.tf", arg)
 
-        providerLocation = folder.group(1) + "provider.tf"
-        if not os.path.isfile(providerLocation):
+        provider_location = folder.group(1) + "provider.tf"
+        if not os.path.isfile(provider_location):
             ISSUE = "Failed"
-            print(providerLocation)
-            print(ISSUE)
+
+            print(f"{ISSUE} theres no proider.tf")
         else:
-            path = pathlib.Path(providerLocation)
-            path.unlink()
+            os.remove(provider_location)
 
     if ISSUE != "":
         return FAIL

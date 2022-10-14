@@ -64,14 +64,14 @@
   files: .tf$
 
 - id: tf-provider-gen
-  name: generate provider tf 
+  name: Generate tf provider 
   description: Generate a provider file for terrform validate step.
   entry: provider-gen
   language: python
   files: .tf$
 
 - id: tf-provider-cleanup
-  name: remove-provider
+  name: Remove-tf-provider
   description: Cleanup up the provider file after terraform validation.
   entry: remove-provider
   language: python
