@@ -13,12 +13,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("filenames", nargs="*", help="Filenames to fix")
     args = parser.parse_args(argv)
-    # dir(args)
 
     for arg in args.filenames:
         folder = re.search("(.*/).*.tf", arg)
 
         providerLocation = folder.group(1) + "provider.tf"
+        print(providerLocation)
+        print(os.path.isfile(providerLocation))
         os.remove(providerLocation)
 
     if ISSUE != "":
