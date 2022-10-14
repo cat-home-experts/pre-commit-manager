@@ -73,6 +73,13 @@
 - id: tf-provider-cleanup
   name: remove-provider
   description: Cleanup up the provider file after terraform validation.
-  entry: provider-gen
+  entry: remove-provider
+  language: python
+  files: .tf$
+
+- id: tf-cache-cleanup
+  name: Clean up terraform cache
+  description: Cleanup up the terraform cache.
+  entry: tf-cache-clean
   language: python
   files: .tf$
