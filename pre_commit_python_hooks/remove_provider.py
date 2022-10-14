@@ -21,7 +21,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         if not os.path.isfile(provider_location):
             ISSUE = "Failed"
 
-            print(f"{ISSUE} theres no proider.tf")
+            print(f"{ISSUE} theres no provider.tf")
         else:
             os.remove(provider_location)
 
