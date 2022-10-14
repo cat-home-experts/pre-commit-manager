@@ -2,7 +2,6 @@ from __future__ import annotations
 import argparse
 import re
 import os
-import pathlib
 
 
 PASS = 0
