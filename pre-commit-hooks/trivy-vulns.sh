@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 set -e
-
-FIND=$(trivy fs --severity high,CRITICAL -q  --ignore-unfixed --security-checks vuln .)
+ROOTGITFOLDER=$(git rev-parse --show-toplevel)
+FIND=$(trivy fs --severity high,CRITICAL -q  --ignore-unfixed --security-checks vuln $ROOTGITFOLDER)
 echo "$find"
 
 if [[ ! -z "$FIND" ]]; then
