@@ -2,7 +2,10 @@
 
 set -e
 
+FIND=$(trivy fs --severity high,CRITICAL -q  --ignore-unfixed --security-checks vuln .)
+echo "$find"
 
-
-
-echo "$(trivy fs --severity high,CRITICAL -q --exit-code=1  --ignore-unfixed --security-checks vuln .)"
+if [[ ! -z "$FIND" ]]; then
+    echo "$FIND"
+    exit 1
+fi
