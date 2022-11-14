@@ -84,7 +84,7 @@
   language: python
   files: .tf$
 
-  - id: trivy-vulns
+- id: trivy-vulns
   name: Trivy check for Vulnerabilities
   description: Trivy check for Vulnerabilities.
   entry: pre-commit-hooks/trivy-vulns.sh
