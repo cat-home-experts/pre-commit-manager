@@ -64,7 +64,7 @@
   files: .tf$
 
 - id: tf-provider-gen
-  name: Generate tf provider 
+  name: Generate tf provider
   description: Generate a provider file for terraform validate step.
   entry: provider-gen
   language: python
