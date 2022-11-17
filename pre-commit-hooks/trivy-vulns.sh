@@ -2,9 +2,9 @@
 
 set -e
 ROOTGITFOLDER=$(git rev-parse --show-toplevel)
-FIND=$(trivy fs --severity high,CRITICAL -q  --ignore-unfixed --security-checks vuln $ROOTGITFOLDER)
+FIND=$(trivy fs --severity high,CRITICAL -q  --ignore-unfixed --security-checks vuln "$ROOTGITFOLDER")
 echo "Running in $ROOTGITFOLDER"
-if [[ ! -z "$FIND" ]]; then
+if [[ -n "$FIND" ]]; then
     echo "$FIND"
     exit 1
 fi
