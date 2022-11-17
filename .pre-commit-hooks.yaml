@@ -64,7 +64,7 @@
   files: .tf$
 
 - id: tf-provider-gen
-  name: Generate tf provider 
+  name: Generate tf provider
   description: Generate a provider file for terraform validate step.
   entry: provider-gen
   language: python
@@ -83,3 +83,10 @@
   entry: tf-cache-clean
   language: python
   files: .tf$
+
+- id: trivy-vulns
+  name: Trivy check for Vulnerabilities
+  description: Trivy check for Vulnerabilities.
+  entry: pre-commit-hooks/trivy-vulns.sh
+  require_serial: true
+  language: script
