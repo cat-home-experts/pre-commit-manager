@@ -1,0 +1,8 @@
+{
+    // For Codespaces
+
+    // So far the only one working fine on Codespace
+    "terminal.integrated.fontFamily": "monospace",
+
+    "terminal.integrated.defaultProfile.linux": "zsh"
+}

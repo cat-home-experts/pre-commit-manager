@@ -57,9 +57,9 @@ tasks:
       [[ "${GITHUB_ACTIONS}" == 'true' ]] && redact="--redact"
       echo "Gitleaks will scan the content of: {{.REPO_ABS_ROOT_PATH}}"
       if [[ "{{.CLI_ARGS}}" == *"sarif"* ]]; then
-        docker run --rm --volume "{{.REPO_ABS_ROOT_PATH}}:/work" zricethezav/gitleaks:latest detect --no-git --exit-code 1 -v ${redact} --report-format "sarif" --report-path "sarif-reports/gitleaks-report.sarif" --source="/work" --config /work/.security/credscan-config.toml
+        docker run --rm --volume "{{.REPO_ABS_ROOT_PATH}}:/work" zricethezav/gitleaks:v8.8.0 detect --no-git --exit-code 1 -v ${redact} --report-format "sarif" --report-path "sarif-reports/gitleaks-report.sarif" --source="/work" --config /work/.security/credscan-config.toml
       else
-        docker run --rm --volume "{{.REPO_ABS_ROOT_PATH}}:/work" zricethezav/gitleaks:latest detect --no-git --exit-code 1 -v ${redact} --source="/work" --config /work/.security/credscan-config.toml
+        docker run --rm --volume "{{.REPO_ABS_ROOT_PATH}}:/work" zricethezav/gitleaks:v8.8.0 detect --no-git --exit-code 1 -v ${redact} --source="/work" --config /work/.security/credscan-config.toml
       fi
 
   lint:

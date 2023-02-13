@@ -11,7 +11,7 @@ python --version 2>/dev/null || true
 if npm --version >/dev/null 2>&1; then echo "Npm $(npm --version)"; fi
 
 if [[ -n "$(command -v asdf)" ]]; then
-  asdf plugin add https://github.com/comdotlinux/asdf-pre-commit.git
+  asdf plugin add pre-commit
   asdf install pre-commit latest
   asdf global pre-commit latest
 elif [[ -n "$(command -v python)" ]]; then

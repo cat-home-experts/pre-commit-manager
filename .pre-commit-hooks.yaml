@@ -48,3 +48,45 @@
   entry: pre-commit-hooks/terraform-docs.sh
   require_serial: true
   language: script
+
+- id: requirements-txt-fixer
+  name: fix requirements.txt
+  description: sorts entries and fixes single = to == in requirements.txt.
+  entry: requirements-txt-fixer
+  language: python
+  files: requirements.*\.txt$
+
+- id: tf-module-checker
+  name: check terraform modules for latest
+  description: Checks if latest is set on ref in terraform modules.
+  entry: tf-module-checker
+  language: python
+  files: .tf$
+
+- id: tf-provider-gen
+  name: Generate tf provider
+  description: Generate a provider file for terraform validate step.
+  entry: provider-gen
+  language: python
+  files: .tf$
+
+- id: tf-provider-cleanup
+  name: Remove-tf-provider
+  description: Cleanup up the provider file after terraform validation.
+  entry: remove-provider
+  language: python
+  files: .tf$
+
+- id: tf-cache-cleanup
+  name: Clean up terraform cache
+  description: Cleanup up the terraform cache.
+  entry: tf-cache-clean
+  language: python
+  files: .tf$
+
+- id: trivy-vulns
+  name: Trivy check for Vulnerabilities
+  description: Trivy check for Vulnerabilities.
+  entry: pre-commit-hooks/trivy-vulns.sh
+  require_serial: true
+  language: script
