@@ -90,3 +90,8 @@
   entry: pre-commit-hooks/trivy-vulns.sh
   require_serial: true
   language: script
+
+- id: dotnet-format
+  name: dotnet-format
+  language: system
+  entry: dotnet format -v normal --no-restore --include
