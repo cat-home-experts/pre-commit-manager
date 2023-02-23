@@ -26,6 +26,9 @@ This Pre-Commit Manager does everything for you using the baseline configuration
   - [Development](#development)
     - [Repository Description](#repository-description)
     - [Baseline Configuration Update](#baseline-configuration-update)
+    - [Hooks in this repo](#hooks-in-this-repo)
+      - [dotnet-format](#dotnet-format)
+        - [dotnet-format usage](#dotnet-format-usage)
     - [How to Develop your Own Hook?](#how-to-develop-your-own-hook)
   - [Some little tricks](#some-little-tricks)
     - [You want to setup a different pre-commit config file](#you-want-to-setup-a-different-pre-commit-config-file)
@@ -202,6 +205,34 @@ cd pre-commit-manager
 ### Baseline Configuration Update
 
 In case of any update on the baseline configuration [sources/baseline.yaml](sources/baseline.yaml), you would need to **create a new GitHub release**. Simply create a feature branch and open a Pull Request. A CI/CD pipeline will manage the rest for you after approval.
+
+### Hooks in this repo
+
+You are free to consume any hook in this repo by including a call to them (by ID and repo URL) in your repo's `.pre-commit-config.yaml`. Examples for each hook can be found below
+
+#### dotnet-format
+
+This hook will simple run `dotnet format` using your installed dotnet SDK with a number of hardcoded command line flags. The hook will:
+
+- Run using the `.editorconfig` in your repo
+- Only operate on modified or added files of type .cs, .csproj or .sln
+- Not run an implicit restore
+- Automatically make changes to resolve linting issues
+
+If changes need to be made the hook will fail and unstage the files, so you'll need to `git add` them again.
+
+##### dotnet-format usage
+
+Add the following to your .pre-commit-config.yaml to run dotnet format on every commit:
+
+```yml
+  - repo: https://github.com/cat-home-experts/pre-commit-manager
+    rev: 1.9.0
+    hooks:
+      - id: dotnet-format
+        stages: [commit]
+        types_or: ["c#", "vb", "sln", "csproj"]
+```
 
 ### How to Develop your Own Hook?
 
