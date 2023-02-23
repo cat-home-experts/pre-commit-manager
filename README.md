@@ -212,7 +212,7 @@ You are free to consume any hook in this repo by including a call to them (by ID
 
 #### dotnet-format
 
-This hook will simple run `dotnet format` using your installed dotnet SDK with a number of hardcoded command line flags. The hook will:
+This hook will simply run `dotnet format` using your installed dotnet SDK with a number of hardcoded command line flags. The hook will:
 
 - Run using the `.editorconfig` in your repo
 - Only operate on modified or added files of type .cs, .csproj or .sln
