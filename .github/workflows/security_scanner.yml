@@ -45,7 +45,7 @@ jobs:
       - name: 'Upload SARIF reports'
         if: always()
         continue-on-error: true
-        uses: github/codeql-action/upload-sarif@v1.0.31
+        uses: github/codeql-action/upload-sarif@v2.2.4
         with:
           sarif_file: ./sarif-reports
       - name: 'Dedicated Grype scan for SARIF report creation'
@@ -60,7 +60,7 @@ jobs:
       - name: 'Upload SARIF Grype reports'
         if: always()
         continue-on-error: true
-        uses: github/codeql-action/upload-sarif@v1.0.31
+        uses: github/codeql-action/upload-sarif@v2.2.4
         with:
           sarif_file: ${{ steps.scan_grype.outputs.sarif }}
       - name: 'Notify if any finding'
