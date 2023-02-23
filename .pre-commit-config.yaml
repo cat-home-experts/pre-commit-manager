@@ -36,3 +36,16 @@ repos:
   hooks:
   - id: shellcheck
     args: ['--severity=warning'] # Only show errors and warnings
+
+- repo: https://github.com/milin/giticket
+  rev: v1.3
+  hooks:
+    - id: giticket
+      args:
+        [
+          '--mode=regex_match',
+          '--regex=[A-Z]+-\d+',
+          '--format={ticket} - {commit_msg}',
+        ]
+      stages: [commit-msg]
+
