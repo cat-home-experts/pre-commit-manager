@@ -50,7 +50,7 @@ jobs:
           sarif_file: ./sarif-reports
       - name: 'Dedicated Grype scan for SARIF report creation'
         id: scan_grype
-        uses: anchore/scan-action@v3.2.0
+        uses: anchore/scan-action@v3.3.4
         with:
           path: './'
           fail-build: true
