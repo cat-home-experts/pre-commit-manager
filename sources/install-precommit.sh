@@ -6,12 +6,22 @@ installer_location="$HOME/.local/var/pre-commit-manager"
 precommit_manager_url="https://github.com/cat-home-experts/pre-commit-manager.git"
 cronjob_frequency_mins=${PRECOMMIT_UPDATE_FREQUENCY_MINS:-20}
 
+if ! command -v python >/dev/null 2>&1; then
+  echo -e "\033[1;33m\033[41mPython not installed.\033[0m"
+  exit 1
+else
+  echo "Python $(python --version)"
+  echo -e "\033[1;37m\033[43mWarning: pre-commit requires Python >= 3.8.\033[0m"
+fi
 
-python --version 2>/dev/null || true
-if npm --version >/dev/null 2>&1; then echo "Npm $(npm --version)"; fi
+if npm --version; then echo "Npm $(npm --version)"; fi
 
 if [[ -n "$(command -v asdf)" ]]; then
-  asdf plugin add pre-commit
+  asdf plugin add pre-commit || {
+    # asdf returns code 2 if plugin already exists
+    ret=$?
+    [[ $ret == 2 ]] && true || exit $ret
+  }
   asdf install pre-commit latest
   asdf global pre-commit latest
 elif [[ -n "$(command -v python)" ]]; then
@@ -24,8 +34,12 @@ else
   exit 1
 fi
 
-if pre-commit --version 2>/dev/null; then
+if [[ -n "$(command -v pre-commit)" ]]; then
   echo -e "\033[1;32m[✓]\033[0m pre-commit framework binaries installed"
+  pre-commit --version || {
+    echo -e "\033[1;37m\033[41mpre-commit threw an error, please check output.\033[0m"
+    exit 1
+  }
 else
   if [[ "${python_installed}" == "true" ]]; then
     # Retry mechanism
