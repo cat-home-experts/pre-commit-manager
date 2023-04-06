@@ -17,8 +17,10 @@ def check_modules(arg: str, folder: pathlib.Path) -> None:
             continue
         with open(file_path.resolve(), "r") as file:
             if arg in file.read():
-
-                return file_path.resolve()
+                print(
+                    "These Modules have a dependancy on the module you have changed, please test these modules and/or bump their version"
+                )
+                print(file_path.resolve())
 
 
 def main(argv: List[str] | None = None) -> int:
@@ -34,9 +36,7 @@ def main(argv: List[str] | None = None) -> int:
     root_folder = get_root_folder.stdout.replace("\n", "")
     print(root_folder)
     files_folder = pathlib.Path(root_folder).joinpath("checkatrade")
-    print(files_folder)
     gcp_folder = pathlib.Path(root_folder).joinpath("gcp")
-    print(gcp_folder)
     pattern = re.compile(r"\.\./|\.\./\.\./")
     for arg in args.filenames:
         arg = os.path.dirname(arg)
@@ -44,21 +44,12 @@ def main(argv: List[str] | None = None) -> int:
         print(arg)
 
         checka = check_modules(arg, files_folder)
-        print(checka)
         if checka != None:
-            print(
-                "These Modules have a dependancy on the module you have changed, please test these modules and/or bump their version"
-            )
-            print(checka)
-            ISSUE = ""
+            ISSUE = "notice"
         gcp = check_modules(arg, gcp_folder)
         print(gcp)
         if gcp != None:
-            print(
-                "These Modules have a dependancy on the module you have changed, please test these modules and/or bump their version"
-            )
-            print(gcp)
-            ISSUE = ""
+            ISSUE = "notice"
 
     if ISSUE != "":
         return FAIL
