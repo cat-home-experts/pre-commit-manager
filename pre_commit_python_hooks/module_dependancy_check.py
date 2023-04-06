@@ -36,6 +36,7 @@ def main(argv: List[str] | None = None) -> int:
     files_folder = pathlib.Path(root_folder).joinpath("checkatrade")
     print(files_folder)
     gcp_folder = pathlib.Path(root_folder).joinpath("gcp")
+    print(gcp_folder)
     pattern = re.compile(r"\.\./|\.\./\.\./")
     for arg in args.filenames:
         arg = os.path.dirname(arg)
@@ -51,7 +52,7 @@ def main(argv: List[str] | None = None) -> int:
             print(checka)
             ISSUE = ""
         gcp = check_modules(arg, gcp_folder)
-        #
+        print(gcp)
         if gcp != None:
             print(
                 "These Modules have a dependancy on the module you have changed, please test these modules and/or bump their version"
