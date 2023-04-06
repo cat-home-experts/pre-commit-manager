@@ -46,8 +46,7 @@ def main(argv: List[str] | None = None) -> int:
         checka = check_modules(arg, files_folder)
         if checka != None:
             ISSUE = "notice"
-        gcp = check_modules(arg, gcp_folder)
-        print(gcp)
+
         if gcp != None:
             ISSUE = "notice"
 
