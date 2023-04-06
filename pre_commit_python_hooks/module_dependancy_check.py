@@ -17,10 +17,8 @@ def check_modules(arg: str, folder: pathlib.Path) -> None:
             continue
         with open(file_path.resolve(), "r") as file:
             if arg in file.read():
-                print(
-                    "These Modules have a dependancy on the module you have changed, please test these modules and/or bump their version"
-                )
-                print(file_path.resolve())
+
+                return file_path.resolve()
 
 
 def main(argv: List[str] | None = None) -> int:
@@ -49,6 +47,10 @@ def main(argv: List[str] | None = None) -> int:
         gcp = check_modules(arg, gcp_folder)
         print(gcp)
         if gcp != "":
+            print(
+                "These Modules have a dependancy on the module you have changed, please test these modules and/or bump their version"
+            )
+            print(gcp)
             ISSUE = "notice"
 
     if ISSUE != "":
