@@ -34,6 +34,7 @@ def main(argv: List[str] | None = None) -> int:
     root_folder = get_root_folder.stdout.replace("\n", "")
     print(root_folder)
     files_folder = pathlib.Path(root_folder).joinpath("checkatrade")
+    print(files_folder)
     gcp_folder = pathlib.Path(root_folder).joinpath("gcp")
     pattern = re.compile(r"\.\./|\.\./\.\./")
     for arg in args.filenames:
