@@ -42,11 +42,16 @@ def main(argv: List[str] | None = None) -> int:
         print(arg)
 
         checka = check_modules(arg, files_folder)
-        if checka != "":
+
+        if checka != None:
+            print(
+                "These Modules have a dependancy on the module you have changed, please test these modules and/or bump their version"
+            )
+            print(checka)
             ISSUE = "notice"
         gcp = check_modules(arg, gcp_folder)
-        print(gcp)
-        if gcp != "":
+        #
+        if gcp != None:
             print(
                 "These Modules have a dependancy on the module you have changed, please test these modules and/or bump their version"
             )
