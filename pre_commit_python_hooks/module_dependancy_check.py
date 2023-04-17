@@ -18,7 +18,7 @@ def check_modules(arg: str, folder: pathlib.Path) -> None:
         with open(file_path.resolve(), "r") as file:
             if arg in file.read():
                 print(
-                    "These Modules have a dependancy on the module you have changed, please test these modules and/or bump their version"
+                    "These Modules have a Dependency on the module you have changed, please test these modules and/or bump their version"
                 )
                 print(file_path.resolve())
 

@@ -91,7 +91,7 @@
   require_serial: true
   language: script
 
-- id: module-dependancy-check
+- id: module-dependency-check
   name: Checks if modules are reliant on the module you have changed
   description: Checks if modules are reliant on the module you have changed.
   entry: module-dependency-check

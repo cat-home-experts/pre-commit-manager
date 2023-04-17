@@ -83,6 +83,7 @@ _run_hook() {
       if [[ $validate_code != 0 ]]; then
         error=1
         echo "Terraform declaration validation failed for $folder"
+        echo $(terraform -v)
         echo "$validate_output"
         echo
       fi
