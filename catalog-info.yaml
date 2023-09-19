@@ -1,35 +1,19 @@
 apiVersion: backstage.io/v1alpha1
-kind: System
-metadata:
-    name: pre-commit-manager
-    title: Pre Commit Manager
-    description: Pre-Commit Manager installs Pre-Commit for you, a Git hooks configuration framework that helps you to push pre-validated code only.
-    annotations:
-        backstage.io/techdocs-ref: dir:.
-        github.com/project-slug: cat-home-experts/pre-commit-manager
-        github.com/team-slug: cat-home-experts/engineering/platform/sre
-        jira/project-key: PL
-    labels:
-        pillar: platform
-    tags:
-        - platform
-        - bash
-        - python
-spec:
-    owner: sre
-
----
-
-apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
     name: pre-commit-manager
-    title: Pre Commit Manager
+    title: pre-commit-manager
     description: Pre-Commit Manager installs Pre-Commit for you, a Git hooks configuration framework that helps you to push pre-validated code only.
     labels:
         pillar: platform
+    annotations:
+        github.com/project-slug: cat-home-experts/pre-commit-manager
+        github.com/team-slug: cat-home-experts/engineering/platform/sre
+        jira/project-key: PL
+        backstage.io/techdocs-ref: dir:.
+        backstage.io/linguist: 'https://github.com/cat-home-experts/pre-commit-manager'
 spec:
-    type: library
+    type: service
     owner: sre
-    system: pre-commit-manager
+    system: 
     lifecycle: production
