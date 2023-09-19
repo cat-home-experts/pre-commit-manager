@@ -21,7 +21,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: "Trigger the Notifier"
         if: success()
-        uses: peter-evans/repository-dispatch@v1.1.3
+        uses: peter-evans/repository-dispatch@v2.1.1
         with:
           token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
           event-type: slack-notification
